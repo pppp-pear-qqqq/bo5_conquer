@@ -2,7 +2,7 @@ use std::fs;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Pattern, TURN};
+use crate::{Error, Pattern, TURN};
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(transparent)]
@@ -77,15 +77,15 @@ impl Ord for SkillType {
 }
 
 impl Licences {
-	pub fn load<P: AsRef<std::path::Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
+	pub fn load<P: AsRef<std::path::Path>>(path: P) -> Result<Self, Error> {
 		let data = fs::read_to_string(path)?;
 		Ok(serde_json::from_str(&data)?)
 	}
 	pub fn len(&self) -> usize {
 		self.0.len()
 	}
-	pub fn get(&self, id: &str) -> Option<&Weapon> {
-		self.0.iter().find(|w| w.id == id)
+	pub fn get(&self, id: &str) -> Result<&Weapon, Error> {
+		self.0.iter().find(|w| w.id == id).ok_or(Error::WeaponNoData(id.to_string()))
 	}
 }
 

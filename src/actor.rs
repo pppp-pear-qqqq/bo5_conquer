@@ -3,7 +3,7 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 
 use crate::licences::{Licences, Weapon};
-use crate::{Pattern, simulate_duel};
+use crate::{Error, Pattern, simulate_duel};
 
 #[derive(Debug)]
 pub struct Actor {
@@ -14,7 +14,7 @@ pub struct Actor {
 }
 
 impl Actor {
-	pub fn load<P: AsRef<std::path::Path>>(path: P, dict: &Licences) -> Result<Self, Box<dyn std::error::Error>> {
+	pub fn load<P: AsRef<std::path::Path>>(path: P, dict: &Licences) -> Result<Self, Error> {
 		let data = fs::read_to_string(path)?;
 		let player: ActorSerializeTemp = serde_json::from_str(&data)?;
 		Ok(player.into_player(dict))
@@ -56,7 +56,7 @@ impl ActorSerializeTemp {
 		Actor {
 			// eno: self.eno,
 			// name: self.name,
-			weapon: dict.get(&self.weapon).cloned(),
+			weapon: dict.get(&self.weapon).ok().cloned(),
 			patterns: self.patterns,
 		}
 	}

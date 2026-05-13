@@ -1,4 +1,5 @@
 mod actor;
+mod error;
 mod licences;
 
 use std::collections::HashSet;
@@ -7,6 +8,7 @@ use std::io::{self, Write};
 use clap::{Parser, Subcommand};
 
 use self::actor::Actor;
+use self::error::Error;
 use self::licences::{Licences, SkillType, Weapon};
 
 const TURN: usize = 5;
@@ -36,7 +38,7 @@ enum Mode {
 	},
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), self::error::Error> {
 	let prompt_input = |msg: &str| -> Result<String, io::Error> {
 		print!("{}", msg);
 		std::io::stdout().flush()?;
@@ -50,25 +52,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let dict = Licences::load("data/licences.json")?;
 	println!("loaded {} weapons", dict.len());
 
-	let mode = args.mode.unwrap_or_else(|| {
-		let input = prompt_input("select mode([f]ind/[s]imulate): ").unwrap();
-		match input.as_str() {
-			"f" | "find" => Mode::FindPattern { opponent: None, min_rate: None },
-			"s" | "simulate" => Mode::SimulateDuel {
-				op_weapon: None,
-				al_pattern: None,
-				op_pattern: None,
-			},
-			_ => panic!("invalid mode"),
+	let mode = match args.mode {
+		Some(mode) => mode,
+		None => {
+			let input = prompt_input("select mode([f]ind/[s]imulate): ")?;
+			match input.as_str() {
+				"f" | "find" => Mode::FindPattern { opponent: None, min_rate: None },
+				"s" | "simulate" => Mode::SimulateDuel {
+					op_weapon: None,
+					al_pattern: None,
+					op_pattern: None,
+				},
+				_ => return Err(Error::InvalidInput(input)),
+			}
 		}
-	});
+	};
 
-	let weapon = dict.get(&args.weapon.unwrap_or(prompt_input("select your weapon: ")?)).ok_or("invalid weapon")?;
+	let weapon = dict.get(&args.weapon.unwrap_or(prompt_input("select your weapon: ")?))?;
 
 	match mode {
 		Mode::FindPattern { opponent, min_rate } => {
 			let opponent = Actor::load(format!("data/patterns/{}.json", opponent.unwrap_or(prompt_input("select your opponent: ")?)), &dict)?;
-			let min_rate = min_rate.unwrap_or(prompt_input("min rate: ")?.parse()?);
+			let min_rate = min_rate.unwrap_or(prompt_input("min rate: ")?.parse().map_err(|_| Error::InvalidInput("{rate}".into()))?);
 
 			let results = opponent.find_pattern(weapon, min_rate);
 			for (score, pattern) in results {
@@ -85,7 +90,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			Ok(())
 		}
 		Mode::SimulateDuel { op_weapon, al_pattern, op_pattern } => {
-			let op_weapon = dict.get(&op_weapon.unwrap_or(prompt_input("select opponent weapon: ")?)).ok_or("invalid weapon")?;
+			let op_weapon = dict.get(&op_weapon.unwrap_or(prompt_input("select opponent weapon: ")?))?;
 			let al_pattern = parse_pattern(&al_pattern.unwrap_or(prompt_input("your pattern: ")?))?;
 			let op_pattern = parse_pattern(&op_pattern.unwrap_or(prompt_input("opponent pattern: ")?))?;
 
@@ -96,14 +101,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	}
 }
 
-fn parse_pattern(input: &str) -> Result<Pattern, Box<dyn std::error::Error>> {
+fn parse_pattern(input: &str) -> Result<Pattern, Error> {
 	let parts: Vec<&str> = input.trim().split_whitespace().collect();
 	if parts.len() != TURN {
-		return Err(format!("パターンはスペース区切りで{}つの数字を入力してください", TURN).into());
+		return Err(Error::InvalidInput(format!("require {} numbers", TURN)));
 	}
 	let mut pattern = [0; TURN];
 	for i in 0..TURN {
-		pattern[i] = parts[i].parse::<u8>()?;
+		pattern[i] = parts[i].parse::<u8>().map_err(|e| Error::InvalidInput(e.to_string()))?;
 	}
 	Ok(pattern)
 }
