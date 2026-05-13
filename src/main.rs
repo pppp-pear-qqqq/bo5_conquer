@@ -2,7 +2,9 @@ mod actor;
 mod licences;
 
 use std::collections::HashSet;
-use std::io::Write;
+use std::io::{self, Write};
+
+use clap::{Parser, Subcommand};
 
 use self::actor::Actor;
 use self::licences::{Licences, SkillType, Weapon};
@@ -10,39 +12,100 @@ use self::licences::{Licences, SkillType, Weapon};
 const TURN: usize = 5;
 type Pattern = [u8; TURN];
 
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Args {
+	#[command(subcommand)]
+	mode: Option<Mode>,
+	#[arg(short, long)]
+	weapon: Option<String>,
+}
+#[derive(Subcommand)]
+enum Mode {
+	FindPattern {
+		#[arg(short, long)]
+		opponent: Option<String>,
+		#[arg(short, long)]
+		min_rate: Option<f32>,
+	},
+	SimulateDuel {
+		#[arg(short, long)]
+		op_weapon: Option<String>,
+		al_pattern: Option<String>,
+		op_pattern: Option<String>,
+	},
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+	let prompt_input = |msg: &str| -> Result<String, io::Error> {
+		print!("{}", msg);
+		std::io::stdout().flush()?;
+		let mut input = String::new();
+		std::io::stdin().read_line(&mut input)?;
+		Ok(input.trim().to_string())
+	};
+
+	let args = Args::parse();
+
 	let dict = Licences::load("data/licences.json")?;
 	println!("loaded {} weapons", dict.len());
 
-	print!("select your weapon: ");
-	std::io::stdout().flush()?;
-
-	let mut input = String::new();
-	std::io::stdin().read_line(&mut input)?;
-	let weapon = dict.get(input.trim()).ok_or("invalid weapon")?;
-
-	print!("select your opponent: ");
-	std::io::stdout().flush()?;
-	let mut input = String::new();
-	std::io::stdin().read_line(&mut input)?;
-	let opponent = Actor::load(format!("data/patterns/{}.json", input.trim()), &dict)?;
-
-	print!("min rate: ");
-	std::io::stdout().flush()?;
-	let mut input = String::new();
-	std::io::stdin().read_line(&mut input)?;
-	let min_win_rate = input.trim().parse::<f32>()?;
-
-	let results = opponent.find_pattern(weapon, min_win_rate);
-	for (score, pattern) in results {
-		print!("{:.2}\t", score);
-		for idx in pattern {
-			print!("{}, ", weapon.skill(idx as usize).name);
+	let mode = args.mode.unwrap_or_else(|| {
+		let input = prompt_input("select mode([f]ind/[s]imulate): ").unwrap();
+		match input.as_str() {
+			"f" | "find" => Mode::FindPattern { opponent: None, min_rate: None },
+			"s" | "simulate" => Mode::SimulateDuel {
+				op_weapon: None,
+				al_pattern: None,
+				op_pattern: None,
+			},
+			_ => panic!("invalid mode"),
 		}
-		println!();
-	}
+	});
 
-	Ok(())
+	let weapon = dict.get(&args.weapon.unwrap_or(prompt_input("select your weapon: ")?)).ok_or("invalid weapon")?;
+
+	match mode {
+		Mode::FindPattern { opponent, min_rate } => {
+			let opponent = Actor::load(format!("data/patterns/{}.json", opponent.unwrap_or(prompt_input("select your opponent: ")?)), &dict)?;
+			let min_rate = min_rate.unwrap_or(prompt_input("min rate: ")?.parse()?);
+
+			let results = opponent.find_pattern(weapon, min_rate);
+			for (score, pattern) in results {
+				print!("{:.2}\t", score);
+				for i in 0..pattern.len() {
+					print!("{}", weapon.skill(pattern[i] as usize).name);
+					if i < pattern.len() - 1 {
+						print!(", ");
+					}
+				}
+				println!();
+			}
+
+			Ok(())
+		}
+		Mode::SimulateDuel { op_weapon, al_pattern, op_pattern } => {
+			let op_weapon = dict.get(&op_weapon.unwrap_or(prompt_input("select opponent weapon: ")?)).ok_or("invalid weapon")?;
+			let al_pattern = parse_pattern(&al_pattern.unwrap_or(prompt_input("your pattern: ")?))?;
+			let op_pattern = parse_pattern(&op_pattern.unwrap_or(prompt_input("opponent pattern: ")?))?;
+
+			let (result, p1_score, p2_score) = simulate_duel(&weapon, &al_pattern, op_weapon, &op_pattern);
+			println!("win: {}\n({} : {})", if result { "left" } else { "right" }, p1_score, p2_score);
+			Ok(())
+		}
+	}
+}
+
+fn parse_pattern(input: &str) -> Result<Pattern, Box<dyn std::error::Error>> {
+	let parts: Vec<&str> = input.trim().split_whitespace().collect();
+	if parts.len() != TURN {
+		return Err(format!("パターンはスペース区切りで{}つの数字を入力してください", TURN).into());
+	}
+	let mut pattern = [0; TURN];
+	for i in 0..TURN {
+		pattern[i] = parts[i].parse::<u8>()?;
+	}
+	Ok(pattern)
 }
 
 fn simulate_duel(p1_weapon: &Weapon, p1_pattern: &Pattern, p2_weapon: &Weapon, p2_pattern: &Pattern) -> (bool, i32, i32) {
