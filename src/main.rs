@@ -24,18 +24,19 @@ struct Args {
 }
 #[derive(Subcommand)]
 enum Mode {
-	FindPattern {
+	Find {
 		#[arg(short, long)]
 		opponent: Option<String>,
 		#[arg(short, long)]
 		min_rate: Option<f32>,
 	},
-	SimulateDuel {
+	Simulate {
 		#[arg(short, long)]
 		op_weapon: Option<String>,
 		al_pattern: Option<String>,
 		op_pattern: Option<String>,
 	},
+	Registration,
 }
 
 fn main() -> Result<(), self::error::Error> {
@@ -57,8 +58,8 @@ fn main() -> Result<(), self::error::Error> {
 		None => {
 			let input = prompt_input("select mode([f]ind/[s]imulate): ")?;
 			match input.as_str() {
-				"f" | "find" => Mode::FindPattern { opponent: None, min_rate: None },
-				"s" | "simulate" => Mode::SimulateDuel {
+				"f" | "find" => Mode::Find { opponent: None, min_rate: None },
+				"s" | "simulate" => Mode::Simulate {
 					op_weapon: None,
 					al_pattern: None,
 					op_pattern: None,
@@ -71,7 +72,7 @@ fn main() -> Result<(), self::error::Error> {
 	let weapon = dict.get(&args.weapon.unwrap_or(prompt_input("select your weapon: ")?))?;
 
 	match mode {
-		Mode::FindPattern { opponent, min_rate } => {
+		Mode::Find { opponent, min_rate } => {
 			let opponent = Actor::load(format!("data/patterns/{}.json", opponent.unwrap_or(prompt_input("select your opponent: ")?)), &dict)?;
 			let min_rate = min_rate.unwrap_or(prompt_input("min rate: ")?.parse().map_err(|_| Error::InvalidInput("{rate}".into()))?);
 
@@ -89,7 +90,7 @@ fn main() -> Result<(), self::error::Error> {
 
 			Ok(())
 		}
-		Mode::SimulateDuel { op_weapon, al_pattern, op_pattern } => {
+		Mode::Simulate { op_weapon, al_pattern, op_pattern } => {
 			let op_weapon = dict.get(&op_weapon.unwrap_or(prompt_input("select opponent weapon: ")?))?;
 			let al_pattern = parse_pattern(&al_pattern.unwrap_or(prompt_input("your pattern: ")?))?;
 			let op_pattern = parse_pattern(&op_pattern.unwrap_or(prompt_input("opponent pattern: ")?))?;
@@ -98,6 +99,7 @@ fn main() -> Result<(), self::error::Error> {
 			println!("win: {}\n({} : {})", if result { "left" } else { "right" }, p1_score, p2_score);
 			Ok(())
 		}
+		Mode::Registration => todo!(),
 	}
 }
 
