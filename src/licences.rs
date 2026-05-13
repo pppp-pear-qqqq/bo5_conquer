@@ -10,19 +10,19 @@ pub struct Licences(pub Vec<Weapon>);
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Weapon {
 	#[serde(rename = "key")]
-	id: String,
-	name: String,
+	pub id: String,
+	pub name: String,
 	skill_list: [Skill; 5],
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Skill {
-	name: String,
+	pub name: String,
 	#[serde(rename = "type")]
-	ty: SkillType,
-	atk: i32,
-	def: i32,
-	slash: i32,
+	pub ty: SkillType,
+	pub atk: i32,
+	pub def: i32,
+	pub slash: i32,
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Deserialize, Serialize)]
@@ -90,6 +90,10 @@ impl Licences {
 }
 
 impl Weapon {
+	pub fn skill(&self, idx: usize) -> &Skill {
+		&self.skill_list.get(idx).expect("error: skill_idx out of range")
+	}
+
 	pub fn enumerate_skill_patterns(&self) -> Vec<Pattern> {
 		let mut results = Vec::new();
 		let mut current_pattern = [0; 5];

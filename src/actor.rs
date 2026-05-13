@@ -1,3 +1,10 @@
+use std::fs;
+
+use serde::{Deserialize, Serialize};
+
+use crate::licences::{Licences, Weapon};
+use crate::{Pattern, simulate_duel};
+
 #[derive(Debug)]
 pub struct Actor {
 	// eno: i32,
@@ -7,17 +14,9 @@ pub struct Actor {
 }
 
 impl Actor {
-	// fn new(eno: i32, name: String, weapon: Option<Weapon>) -> Self {
-	// 	Self {
-	// 		eno,
-	// 		name,
-	// 		weapon,
-	// 		patterns: Vec::new(),
-	// 	}
-	// }
 	pub fn load<P: AsRef<std::path::Path>>(path: P, dict: &Licences) -> Result<Self, Box<dyn std::error::Error>> {
 		let data = fs::read_to_string(path)?;
-		let player: PlayerSerializeTemp = serde_json::from_str(&data)?;
+		let player: ActorSerializeTemp = serde_json::from_str(&data)?;
 		Ok(player.into_player(dict))
 	}
 	// pub fn save<P: AsRef<std::path::Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
@@ -32,7 +31,8 @@ impl Actor {
 			for p1_pattern in weapon.enumerate_skill_patterns() {
 				let mut win = 0;
 				for p2_pattern in &self.patterns {
-					if simulate_duel(weapon, &p1_pattern, &p2_weapon, p2_pattern) {
+					let (result, _, _) = simulate_duel(weapon, &p1_pattern, p2_weapon, p2_pattern);
+					if result {
 						win += 1;
 					}
 				}
@@ -45,13 +45,13 @@ impl Actor {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct PlayerSerializeTemp {
+struct ActorSerializeTemp {
 	eno: i32,
 	name: String,
 	weapon: String,
 	patterns: Vec<Pattern>,
 }
-impl PlayerSerializeTemp {
+impl ActorSerializeTemp {
 	pub fn into_player(self, dict: &Licences) -> Actor {
 		Actor {
 			// eno: self.eno,
