@@ -1,0 +1,115 @@
+use std::fs;
+
+use serde::{Deserialize, Serialize};
+
+use crate::{Pattern, TURN};
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct Licences(pub Vec<Weapon>);
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Weapon {
+	#[serde(rename = "key")]
+	id: String,
+	name: String,
+	skill_list: [Skill; 5],
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Skill {
+	name: String,
+	#[serde(rename = "type")]
+	ty: SkillType,
+	atk: i32,
+	def: i32,
+	slash: i32,
+}
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SkillType {
+	Ov,
+	Md,
+	Un,
+	Sp,
+	Ex,
+}
+impl Ord for SkillType {
+	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+		match self {
+			Self::Ov => match other {
+				Self::Ov => std::cmp::Ordering::Equal,
+				Self::Md => std::cmp::Ordering::Greater,
+				Self::Un => std::cmp::Ordering::Less,
+				Self::Sp => std::cmp::Ordering::Less,
+				Self::Ex => std::cmp::Ordering::Greater,
+			},
+			Self::Md => match other {
+				Self::Ov => std::cmp::Ordering::Less,
+				Self::Md => std::cmp::Ordering::Equal,
+				Self::Un => std::cmp::Ordering::Greater,
+				Self::Sp => std::cmp::Ordering::Less,
+				Self::Ex => std::cmp::Ordering::Greater,
+			},
+			Self::Un => match other {
+				Self::Ov => std::cmp::Ordering::Greater,
+				Self::Md => std::cmp::Ordering::Less,
+				Self::Un => std::cmp::Ordering::Equal,
+				Self::Sp => std::cmp::Ordering::Less,
+				Self::Ex => std::cmp::Ordering::Greater,
+			},
+			Self::Sp => match other {
+				Self::Ov => std::cmp::Ordering::Greater,
+				Self::Md => std::cmp::Ordering::Greater,
+				Self::Un => std::cmp::Ordering::Greater,
+				Self::Sp => std::cmp::Ordering::Equal,
+				Self::Ex => std::cmp::Ordering::Less,
+			},
+			Self::Ex => match other {
+				Self::Ov => std::cmp::Ordering::Less,
+				Self::Md => std::cmp::Ordering::Less,
+				Self::Un => std::cmp::Ordering::Less,
+				Self::Sp => std::cmp::Ordering::Greater,
+				Self::Ex => std::cmp::Ordering::Equal,
+			},
+		}
+	}
+}
+
+impl Licences {
+	pub fn load<P: AsRef<std::path::Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
+		let data = fs::read_to_string(path)?;
+		Ok(serde_json::from_str(&data)?)
+	}
+	pub fn len(&self) -> usize {
+		self.0.len()
+	}
+	pub fn get(&self, id: &str) -> Option<&Weapon> {
+		self.0.iter().find(|w| w.id == id)
+	}
+}
+
+impl Weapon {
+	pub fn enumerate_skill_patterns(&self) -> Vec<Pattern> {
+		let mut results = Vec::new();
+		let mut current_pattern = [0; 5];
+		let mut stocks = self.skill_list.each_ref().map(|s| s.slash);
+		Self::find_patterns(&mut results, &mut current_pattern, &mut stocks, 0);
+		results
+	}
+
+	fn find_patterns(results: &mut Vec<Pattern>, current_pattern: &mut Pattern, stocks: &mut [i32; 5], depth: usize) {
+		if depth == TURN {
+			results.push(*current_pattern);
+			return;
+		}
+		for i in 0..TURN {
+			if stocks[i] > 0 {
+				current_pattern[depth] = i as u8;
+				stocks[i] -= 1;
+				Self::find_patterns(results, current_pattern, stocks, depth + 1);
+				stocks[i] += 1;
+			}
+		}
+	}
+}
