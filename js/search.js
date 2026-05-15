@@ -5,7 +5,7 @@
 		id += 1;
 		const e = document.getElementById(id);
 		if (!e) continue;
-		const id_name = e.querySelector('img').src.match(/imgs\/w_(.+).svg/)[1];
+		const key = e.querySelector('img').src.match(/imgs\/w_(.+).svg/)[1];
 		const category = e.querySelector('[class*="wptag_"]').className.match(/wptag_(.+)/)[1];
 		const name = e.querySelector('b').firstChild.textContent.trim();
 		const desc = e.querySelector('p').textContent.trim();
@@ -22,7 +22,7 @@
 			if (Number.isNaN(atk) || Number.isNaN(def) || Number.isNaN(slash)) continue top;
 			skill_list.push({ type, name, desc, atk, def, slash });
 		}
-		list.push({ id, id_name, category, name, desc, skill_list, price });
+		list.push({ id, id_name: key, category, name, desc, skill_list, price });
 	}
 	console.table(list);
 })();

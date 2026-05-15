@@ -3,6 +3,7 @@ pub enum Error {
 	Io(std::io::Error),
 	Serde(serde_json::Error),
 	WeaponNoData(String),
+	SkillUndefined(String),
 	InvalidInput(String),
 }
 
@@ -23,6 +24,7 @@ impl std::fmt::Display for Error {
 			Error::Io(e) => write!(f, "IO error: {}", e),
 			Error::Serde(e) => write!(f, "Serde error: {}", e),
 			Error::WeaponNoData(e) => write!(f, "Weapon unauthorized({})", e),
+			Error::SkillUndefined(e) => write!(f, "Skill undefined({})", e),
 			Error::InvalidInput(e) => write!(f, "Invalid input({})", e),
 		}
 	}
@@ -34,6 +36,7 @@ impl std::error::Error for Error {
 			Error::Io(e) => Some(e),
 			Error::Serde(e) => Some(e),
 			Error::WeaponNoData(_) => None,
+			Error::SkillUndefined(_) => None,
 			Error::InvalidInput(_) => None,
 		}
 	}

@@ -59,11 +59,7 @@ fn main() -> Result<(), self::error::Error> {
 			let input = prompt_input("select mode([f]ind/[s]imulate): ")?;
 			match input.as_str() {
 				"f" | "find" => Mode::Find { opponent: None, min_rate: None },
-				"s" | "simulate" => Mode::Simulate {
-					op_weapon: None,
-					al_pattern: None,
-					op_pattern: None,
-				},
+				"s" | "simulate" => Mode::Simulate { op_weapon: None, al_pattern: None, op_pattern: None },
 				_ => return Err(Error::InvalidInput(input)),
 			}
 		}

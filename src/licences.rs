@@ -34,6 +34,7 @@ pub enum SkillType {
 	Sp,
 	Ex,
 }
+
 impl Ord for SkillType {
 	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
 		match self {
@@ -92,6 +93,10 @@ impl Licences {
 impl Weapon {
 	pub fn skill(&self, idx: usize) -> &Skill {
 		&self.skill_list.get(idx).expect("error: skill_idx out of range")
+	}
+
+	pub fn skill_by_name(&self, name: &str) -> Result<u8, Error> {
+		self.skill_list.iter().position(|s| s.name == name).map(|idx| idx as u8).ok_or(Error::SkillUndefined(name.into()))
 	}
 
 	pub fn enumerate_skill_patterns(&self) -> Vec<Pattern> {

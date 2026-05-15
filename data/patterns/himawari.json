@@ -1,0 +1,21 @@
+{
+	"eno": "himawari",
+	"name": "ヘリオス",
+	"weapon": "shovel",
+	"patterns": [
+		[
+			{ "type": "md", "name": "アサルト" },
+			{ "type": "un", "name": "ディグ" },
+			{ "type": "sp", "name": "トレンチ" },
+			{ "type": "md", "name": "アサルト" },
+			{ "type": "un", "name": "エクスカベート" }
+		],
+		[
+			{ "type": "un", "name": "エクスカベート" },
+			{ "type": "md", "name": "アサルト" },
+			{ "type": "ex", "name": "ピットフォール" },
+			{ "type": "un", "name": "ディグ" },
+			{ "type": "md", "name": "アサルト" }
+		]
+	]
+}
