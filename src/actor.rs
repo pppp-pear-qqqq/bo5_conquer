@@ -3,14 +3,30 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 
 use crate::licences::{Licences, Weapon};
-use crate::{Error, Pattern, TURN, simulate_duel};
+use crate::{Error, Pattern, ROUND, simulate_duel};
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum Eno {
+	Int(i32),
+	Str(String),
+}
 
 #[derive(Debug)]
 pub struct Actor {
-	// eno: i32,
-	// name: String,
+	pub eno: Eno,
+	// pub name: String,
 	weapon: Weapon,
 	patterns: Vec<Pattern>,
+}
+
+impl std::fmt::Display for Eno {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Eno::Int(n) => write!(f, "{}", n),
+			Eno::Str(s) => write!(f, "{}", s),
+		}
+	}
 }
 
 impl Actor {
@@ -25,29 +41,33 @@ impl Actor {
 	// 	Ok(())
 	// }
 
-	pub fn find_pattern(&self, weapon: &Weapon, min_score: f32) -> Vec<(f32, Pattern)> {
+	pub fn find_pattern(&self, weapon: &Weapon, min_score: f32, allow_draw: bool) -> Vec<(f32, f32, Pattern)> {
 		let mut results = Vec::new();
 		for p1_pattern in weapon.enumerate_skill_patterns() {
 			let mut win = 0;
+			let mut draw = 0;
 			for p2_pattern in &self.patterns {
-				let (result, _, _) = simulate_duel(weapon, &p1_pattern, &self.weapon, p2_pattern);
-				if result {
+				let (p1_score, p2_score) = simulate_duel(weapon, &p1_pattern, &self.weapon, p2_pattern, true);
+				if p1_score > p2_score {
 					win += 1;
+				} else if p1_score == p2_score {
+					draw += 1;
 				}
 			}
-			results.push((win as f32 / self.patterns.len() as f32, p1_pattern));
+			let den = self.patterns.len() as f32;
+			results.push((win as f32 / den, (win + draw) as f32 / den, p1_pattern));
 		}
-		results.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
-		results.into_iter().filter(|(score, _)| *score >= min_score).collect()
+		results.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap().then_with(|| b.1.partial_cmp(&a.1).unwrap()));
+		results.into_iter().filter(|(win, draw, _)| if !allow_draw { *win >= min_score } else { *draw >= min_score }).collect()
 	}
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 struct ActorSerializeTemp {
-	eno: i32,
-	name: String,
+	eno: Eno,
+	// name: String,
 	weapon: String,
-	patterns: Vec<[PatternSerializeTemp; TURN]>,
+	patterns: Vec<[PatternSerializeTemp; ROUND]>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 struct PatternSerializeTemp {
@@ -60,14 +80,14 @@ impl ActorSerializeTemp {
 		let weapon = dict.get(&self.weapon)?.clone();
 		let mut patterns = Vec::new();
 		for p in self.patterns {
-			let mut pattern = [255; TURN];
-			for i in 0..TURN {
+			let mut pattern = [255; ROUND];
+			for i in 0..ROUND {
 				pattern[i] = weapon.skill_by_name(&p[i].name)?;
 			}
 			patterns.push(pattern);
 		}
 		Ok(Actor {
-			// eno: self.eno,
+			eno: self.eno,
 			// name: self.name,
 			weapon,
 			patterns,

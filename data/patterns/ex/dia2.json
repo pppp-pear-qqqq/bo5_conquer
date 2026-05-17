@@ -1,0 +1,35 @@
+{
+	"eno": "dia2",
+	"name": "ディア",
+	"weapon": "midrash",
+	"patterns": [
+		[
+			{ "type": "sp", "name": "ライノチャージ" },
+			{ "type": "ov", "name": "ライトスティング" },
+			{ "type": "md", "name": "ジェットスラスト" },
+			{ "type": "un", "name": "パンジステーク" },
+			{ "type": "ex", "name": "インナーブル" }
+		],
+		[
+			{ "type": "ov", "name": "ブレーンスルー" },
+			{ "type": "md", "name": "アクシス" },
+			{ "type": "un", "name": "アーマーピアス" },
+			{ "type": "md", "name": "ミセリコルデ" },
+			{ "type": "sp", "name": "コントルアタック" }
+		],
+		[
+			{ "type": "md", "name": "スティング" },
+			{ "type": "un", "name": "ペネトレイト" },
+			{ "type": "md", "name": "セントラル" },
+			{ "type": "ov", "name": "エッジ" },
+			{ "type": "sp", "name": "コントルアタック" }
+		],
+		[
+			{ "type": "md", "name": "ポイント" },
+			{ "type": "ov", "name": "トゥシュ" },
+			{ "type": "md", "name": "コンツェシュ" },
+			{ "type": "un", "name": "カウンター" },
+			{ "type": "sp", "name": "コントルアタック" }
+		]
+	]
+}

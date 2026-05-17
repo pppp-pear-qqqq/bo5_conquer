@@ -1,0 +1,14 @@
+{
+	"eno": "UNfabio",
+	"name": "ファビオ",
+	"weapon": "lance-sp",
+	"patterns": [
+		[
+			{ "type": "md", "name": "トンネリング" },
+			{ "type": "md", "name": "ジェットスラスト" },
+			{ "type": "ex", "name": "エナジーゲイン" },
+			{ "type": "sp", "name": "ライノチャージ" },
+			{ "type": "sp", "name": "ランスチャージ" }
+		]
+	]
+}
