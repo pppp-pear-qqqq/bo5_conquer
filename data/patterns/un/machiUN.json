@@ -1,0 +1,42 @@
+{
+	"eno": "machiUN",
+	"name": "マチ",
+	"weapon": "youtou",
+	"patterns": [
+		[
+			{ "type": "", "name": "魂振" },
+			{ "type": "", "name": "燕返し" },
+			{ "type": "", "name": "一閃" },
+			{ "type": "", "name": "無窮" },
+			{ "type": "", "name": "無窮" }
+		],
+		[
+			{ "type": "", "name": "魂振" },
+			{ "type": "", "name": "撃剣" },
+			{ "type": "", "name": "唐竹割" },
+			{ "type": "", "name": "流星" },
+			{ "type": "", "name": "無窮" }
+		],
+		[
+			{ "type": "", "name": "魂振" },
+			{ "type": "", "name": "辻斬" },
+			{ "type": "", "name": "貫突" },
+			{ "type": "", "name": "大嵐" },
+			{ "type": "", "name": "無窮" }
+		],
+		[
+			{ "type": "", "name": "魂振" },
+			{ "type": "", "name": "天誅" },
+			{ "type": "", "name": "逆袈裟" },
+			{ "type": "", "name": "地吹雪" },
+			{ "type": "", "name": "無窮" }
+		],
+		[
+			{ "type": "", "name": "心頭滅却" },
+			{ "type": "", "name": "流水" },
+			{ "type": "", "name": "居合" },
+			{ "type": "", "name": "死合" },
+			{ "type": "", "name": "無窮" }
+		]
+	]
+}

@@ -1,5 +1,6 @@
 mod actor;
 mod error;
+mod greedy;
 mod licences;
 
 use std::collections::HashSet;
@@ -7,6 +8,8 @@ use std::fs;
 use std::io::{self, Write};
 
 use clap::{Parser, Subcommand};
+
+use crate::greedy::greedy;
 
 use self::actor::Actor;
 use self::error::Error;
@@ -42,8 +45,12 @@ enum Mode {
 	AllFind {
 		#[arg(short, long)]
 		weapon: Option<String>,
-		#[arg(short, long, default_value = "false")]
+		#[arg(long, default_value = "false")]
 		overwrite: bool,
+	},
+	Greedy {
+		#[arg(short, long)]
+		weapon: String,
 	},
 	Registration,
 }
@@ -115,7 +122,7 @@ fn main() -> Result<(), self::error::Error> {
 		}
 		Mode::AllFind { weapon, overwrite } => {
 			let weapon = dict.get(&if let Some(weapon) = weapon { weapon } else { prompt_input("select weapon: ")? })?;
-			let dir = format!("result/{}", weapon.name);
+			let dir = format!("result/{}", weapon.id);
 			fs::create_dir_all(&dir)?;
 			for entry in fs::read_dir("data/patterns")? {
 				let entry = entry?;
@@ -132,8 +139,8 @@ fn main() -> Result<(), self::error::Error> {
 								println!("{}: pattern not found", opponent.eno);
 							} else {
 								let mut file = fs::File::create(format!("{}/{}.csv", dir, opponent.eno))?;
-								for (score, draw_rate, pattern) in results {
-									let line = pattern.into_iter().fold(format!("{:.2}({:.2})", score, draw_rate), |acc, p| acc + "," + &weapon.skill(p as usize).name);
+								for (_, _, pattern) in results {
+									let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
 									println!("{line}");
 									writeln!(file, "{line}")?;
 								}
@@ -146,6 +153,7 @@ fn main() -> Result<(), self::error::Error> {
 			}
 			Ok(())
 		}
+		Mode::Greedy { weapon } => greedy(format!("result/{weapon}")),
 		Mode::Registration => todo!(),
 	}
 }

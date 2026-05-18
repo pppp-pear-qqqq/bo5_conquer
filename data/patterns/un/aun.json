@@ -1,0 +1,42 @@
+{
+	"eno": "aun",
+	"name": "阿吽",
+	"weapon": "shakujo-un",
+	"patterns": [
+		[
+			{ "type": "", "name": "五不還天" },
+			{ "type": "", "name": "雷霆" },
+			{ "type": "", "name": "金剛" },
+			{ "type": "", "name": "有頂天" },
+			{ "type": "", "name": "苦無" }
+		],
+		[
+			{ "type": "", "name": "苦無" },
+			{ "type": "", "name": "雷霆" },
+			{ "type": "", "name": "金剛" },
+			{ "type": "", "name": "有頂天" },
+			{ "type": "", "name": "五不還天" }
+		],
+		[
+			{ "type": "", "name": "有頂天" },
+			{ "type": "", "name": "五不還天" },
+			{ "type": "", "name": "祓魔" },
+			{ "type": "", "name": "焦熱地獄" },
+			{ "type": "", "name": "雷霆" }
+		],
+		[
+			{ "type": "", "name": "有頂天" },
+			{ "type": "", "name": "焦熱地獄" },
+			{ "type": "", "name": "五不還天" },
+			{ "type": "", "name": "祓魔" },
+			{ "type": "", "name": "雷霆" }
+		],
+		[
+			{ "type": "", "name": "有頂天" },
+			{ "type": "", "name": "祓魔" },
+			{ "type": "", "name": "焦熱地獄" },
+			{ "type": "", "name": "五不還天" },
+			{ "type": "", "name": "雷霆" }
+		]
+	]
+}

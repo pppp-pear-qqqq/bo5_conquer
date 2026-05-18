@@ -1,0 +1,35 @@
+{
+	"eno": "EXmeido",
+	"name": "キルシェ",
+	"weapon": "kitchenknife-un",
+	"patterns": [
+		[
+			{ "type": "", "name": "みじん斬り" },
+			{ "type": "", "name": "兜割り" },
+			{ "type": "", "name": "唐竹割" },
+			{ "type": "", "name": "嫦娥" },
+			{ "type": "", "name": "研ぐ" }
+		],
+		[
+			{ "type": "", "name": "みじん斬り" },
+			{ "type": "", "name": "カットオフ" },
+			{ "type": "", "name": "スライス" },
+			{ "type": "", "name": "ローカット" },
+			{ "type": "", "name": "研ぐ" }
+		],
+		[
+			{ "type": "", "name": "みじん斬り" },
+			{ "type": "", "name": "スマイト" },
+			{ "type": "", "name": "インペイル" },
+			{ "type": "", "name": "ヴィヴロエッジ" },
+			{ "type": "", "name": "研ぐ" }
+		],
+		[
+			{ "type": "", "name": "みじん斬り" },
+			{ "type": "", "name": "クリス" },
+			{ "type": "", "name": "ブラッドバス" },
+			{ "type": "", "name": "バーティカル" },
+			{ "type": "", "name": "研ぐ" }
+		]
+	]
+}

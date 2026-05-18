@@ -1,0 +1,42 @@
+{
+	"eno": "unkure",
+	"name": "呉先生",
+	"weapon": "bottle-un",
+	"patterns": [
+		[
+			{ "type": "sp", "name": "乾杯" },
+			{ "type": "ov", "name": "シャウト" },
+			{ "type": "md", "name": "アッパー" },
+			{ "type": "un", "name": "夾撃" },
+			{ "type": "sp", "name": "化勁" }
+		],
+		[
+			{ "type": "sp", "name": "化勁" },
+			{ "type": "un", "name": "サマーソルト" },
+			{ "type": "ov", "name": "跳手" },
+			{ "type": "md", "name": "骨法" },
+			{ "type": "sp", "name": "乾杯" }
+		],
+		[
+			{ "type": "ex", "name": "宴会" },
+			{ "type": "md", "name": "タックル" },
+			{ "type": "un", "name": "クエイク" },
+			{ "type": "ov", "name": "バァンッ" },
+			{ "type": "ex", "name": "寸打" }
+		],
+		[
+			{ "type": "ex", "name": "寸打" },
+			{ "type": "md", "name": "バーストナックル" },
+			{ "type": "sp", "name": "ゴスッ" },
+			{ "type": "un", "name": "アースクエイク" },
+			{ "type": "ex", "name": "宴会" }
+		],
+		[
+			{ "type": "ov", "name": "頭蓋骨割り" },
+			{ "type": "ex", "name": "パリィ" },
+			{ "type": "sp", "name": "ゴスッ" },
+			{ "type": "sp", "name": "乾杯" },
+			{ "type": "md", "name": "鉄山靠" }
+		]
+	]
+}

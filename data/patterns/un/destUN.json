@@ -1,0 +1,42 @@
+{
+	"eno": "destUN",
+	"name": "デスティロ",
+	"weapon": "rapier-un",
+	"patterns": [
+		[
+			{ "type": "ov", "name": "サーペントテール" },
+			{ "type": "sp", "name": "コントルアタック" },
+			{ "type": "md", "name": "パラード" },
+			{ "type": "ex", "name": "パリィ" },
+			{ "type": "un", "name": "ファント" }
+		],
+		[
+			{ "type": "un", "name": "ファント" },
+			{ "type": "ov", "name": "トゥシュ" },
+			{ "type": "sp", "name": "コントルアタック" },
+			{ "type": "md", "name": "ミセリコルデ" },
+			{ "type": "ex", "name": "パリィ" }
+		],
+		[
+			{ "type": "ex", "name": "パリィ" },
+			{ "type": "un", "name": "ブラッドバス" },
+			{ "type": "ov", "name": "トゥシュ" },
+			{ "type": "sp", "name": "コントルアタック" },
+			{ "type": "md", "name": "パラード" }
+		],
+		[
+			{ "type": "md", "name": "パラード" },
+			{ "type": "ex", "name": "パリィ" },
+			{ "type": "un", "name": "ファント" },
+			{ "type": "ov", "name": "トゥシュ" },
+			{ "type": "sp", "name": "ライノチャージ" }
+		],
+		[
+			{ "type": "sp", "name": "コントルアタック" },
+			{ "type": "md", "name": "パラード" },
+			{ "type": "ex", "name": "アンブッシュ" },
+			{ "type": "un", "name": "ファント" },
+			{ "type": "ov", "name": "トゥシュ" }
+		]
+	]
+}

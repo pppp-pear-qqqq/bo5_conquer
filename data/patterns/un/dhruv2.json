@@ -1,0 +1,63 @@
+{
+	"eno": "dhruv2",
+	"name": "ドゥルーヴ",
+	"weapon": "coilsword-un",
+	"patterns": [
+		[
+			{ "type": "ov", "name": "アグニ" },
+			{ "type": "ex", "name": "ウルミ" },
+			{ "type": "md", "name": "ヴァーユ" },
+			{ "type": "sp", "name": "ドゥルガー" },
+			{ "type": "md", "name": "ヴァーユ" }
+		],
+		[
+			{ "type": "ov", "name": "アグニ" },
+			{ "type": "ex", "name": "ウルミ" },
+			{ "type": "md", "name": "ヴァーユ" },
+			{ "type": "sp", "name": "ドゥルガー" },
+			{ "type": "ov", "name": "アグニ" }
+		],
+		[
+			{ "type": "md", "name": "スティング" },
+			{ "type": "ex", "name": "ジョストブロー" },
+			{ "type": "ov", "name": "ヘッドリッパー" },
+			{ "type": "sp", "name": "デッドリースタブ" },
+			{ "type": "un", "name": "トゥスライス" }
+		],
+		[
+			{ "type": "md", "name": "スティング" },
+			{ "type": "ex", "name": "ジョストブロー" },
+			{ "type": "un", "name": "トゥスライス" },
+			{ "type": "sp", "name": "デッドリースタブ" },
+			{ "type": "ov", "name": "ヘッドリッパー" }
+		],
+		[
+			{ "type": "ov", "name": "善見城" },
+			{ "type": "sp", "name": "有頂天" },
+			{ "type": "un", "name": "叫喚地獄" },
+			{ "type": "un", "name": "焦熱地獄" },
+			{ "type": "ov", "name": "五不還天" }
+		],
+		[
+			{ "type": "un", "name": "叫喚地獄" },
+			{ "type": "sp", "name": "有頂天" },
+			{ "type": "ov", "name": "善見城" },
+			{ "type": "ov", "name": "五不還天" },
+			{ "type": "un", "name": "焦熱地獄" }
+		],
+		[
+			{ "type": "md", "name": "ドル・ホ・ジャオ" },
+			{ "type": "ov", "name": "プラヴェシュ" },
+			{ "type": "md", "name": "ドル・ホ・ジャオ" },
+			{ "type": "sp", "name": "インドラ" },
+			{ "type": "un", "name": "ヒマラム" }
+		],
+		[
+			{ "type": "md", "name": "ドル・ホ・ジャオ" },
+			{ "type": "un", "name": "ヒマラム" },
+			{ "type": "md", "name": "ドル・ホ・ジャオ" },
+			{ "type": "sp", "name": "インドラ" },
+			{ "type": "ov", "name": "プラヴェシュ" }
+		]
+	]
+}

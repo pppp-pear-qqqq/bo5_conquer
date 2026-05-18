@@ -1,0 +1,28 @@
+{
+	"eno": "UNpancho",
+	"name": "パンチョ",
+	"weapon": "knuckleduster-un",
+	"patterns": [
+		[
+			{ "type": "", "name": "ラムアタック" },
+			{ "type": "", "name": "ベアハッグ" },
+			{ "type": "", "name": "骨法" },
+			{ "type": "", "name": "不動" },
+			{ "type": "", "name": "デンプシーロール" }
+		],
+		[
+			{ "type": "", "name": "ベアハッグ" },
+			{ "type": "", "name": "ストレート" },
+			{ "type": "", "name": "不動" },
+			{ "type": "", "name": "デンプシーロール" },
+			{ "type": "", "name": "ラムアタック" }
+		],
+		[
+			{ "type": "", "name": "不動" },
+			{ "type": "", "name": "ラムアタック" },
+			{ "type": "", "name": "デンプシーロール" },
+			{ "type": "", "name": "寸打" },
+			{ "type": "", "name": "貫手" }
+		]
+	]
+}
