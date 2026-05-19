@@ -2,6 +2,7 @@
 	"eno": "dia2",
 	"name": "ディア",
 	"weapon": "midrash",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "md", "name": "ポイント" },

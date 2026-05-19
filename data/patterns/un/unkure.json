@@ -1,7 +1,8 @@
 {
 	"eno": "unkure",
 	"name": "呉先生",
-	"weapon": "bottle-un",
+	"weapon": "bottle",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "sp", "name": "乾杯" },

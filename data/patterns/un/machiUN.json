@@ -2,6 +2,7 @@
 	"eno": "machiUN",
 	"name": "マチ",
 	"weapon": "youtou",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "魂振" },

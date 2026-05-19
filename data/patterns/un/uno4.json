@@ -1,7 +1,8 @@
 {
 	"eno": "uno4",
 	"name": "No.4",
-	"weapon": "bat-un",
+	"weapon": "bat",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "死合" },

@@ -74,8 +74,17 @@ fn main() -> Result<(), self::error::Error> {
 		None => {
 			let input = prompt_input("select mode([f]ind/[s]imulate/[a]ll-find): ")?;
 			match input.as_str() {
-				"f" | "find" => Mode::Find { weapon: None, opponent: None, min_rate: None },
-				"s" | "simulate" => Mode::Simulate { al_weapon: None, op_weapon: None, al_pattern: None, op_pattern: None },
+				"f" | "find" => Mode::Find {
+					weapon: None,
+					opponent: None,
+					min_rate: None,
+				},
+				"s" | "simulate" => Mode::Simulate {
+					al_weapon: None,
+					op_weapon: None,
+					al_pattern: None,
+					op_pattern: None,
+				},
 				"a" | "all-find" => Mode::AllFind { weapon: None, overwrite: false },
 				_ => return Err(Error::InvalidInput(input)),
 			}
@@ -85,9 +94,16 @@ fn main() -> Result<(), self::error::Error> {
 	match mode {
 		Mode::Find { weapon, opponent, min_rate } => {
 			println!("find mode: weapon={:?} opponent={:?} min_rate={:?}", weapon, opponent, min_rate);
-			let weapon = dict.get(&if let Some(weapon) = weapon { weapon } else { prompt_input("select your weapon: ")? })?;
-			let opponent = Actor::load(format!("data/patterns/{}.json", if let Some(opponent) = opponent { opponent } else { prompt_input("select your opponent: ")? }), &dict)?;
-			let min_rate = if let Some(min_rate) = min_rate { min_rate } else { prompt_input("min rate: ")?.parse().map_err(|_| Error::InvalidInput("{rate}".into()))? };
+			let weapon = dict.get_weapon(&if let Some(weapon) = weapon { weapon } else { prompt_input("select your weapon: ")? })?;
+			let opponent = Actor::load(
+				format!("data/patterns/{}.json", if let Some(opponent) = opponent { opponent } else { prompt_input("select your opponent: ")? }),
+				&dict,
+			)?;
+			let min_rate = if let Some(min_rate) = min_rate {
+				min_rate
+			} else {
+				prompt_input("min rate: ")?.parse().map_err(|_| Error::InvalidInput("{rate}".into()))?
+			};
 
 			let results = opponent.find_pattern(weapon, min_rate, true);
 			if results.is_empty() {
@@ -106,9 +122,14 @@ fn main() -> Result<(), self::error::Error> {
 			}
 			Ok(())
 		}
-		Mode::Simulate { al_weapon, op_weapon, al_pattern, op_pattern } => {
-			let al_weapon = dict.get(&if let Some(al_weapon) = al_weapon { al_weapon } else { prompt_input("select your weapon: ")? })?;
-			let op_weapon = dict.get(&if let Some(op_weapon) = op_weapon { op_weapon } else { prompt_input("select opponent weapon: ")? })?;
+		Mode::Simulate {
+			al_weapon,
+			op_weapon,
+			al_pattern,
+			op_pattern,
+		} => {
+			let al_weapon = dict.get_weapon(&if let Some(al_weapon) = al_weapon { al_weapon } else { prompt_input("select your weapon: ")? })?;
+			let op_weapon = dict.get_weapon(&if let Some(op_weapon) = op_weapon { op_weapon } else { prompt_input("select opponent weapon: ")? })?;
 			let al_pattern = parse_pattern(&if let Some(al_pattern) = al_pattern { al_pattern } else { prompt_input("your pattern: ")? })?;
 			let op_pattern = parse_pattern(&if let Some(op_pattern) = op_pattern { op_pattern } else { prompt_input("opponent pattern: ")? })?;
 
@@ -121,7 +142,7 @@ fn main() -> Result<(), self::error::Error> {
 			Ok(())
 		}
 		Mode::AllFind { weapon, overwrite } => {
-			let weapon = dict.get(&if let Some(weapon) = weapon { weapon } else { prompt_input("select weapon: ")? })?;
+			let weapon = dict.get_weapon(&if let Some(weapon) = weapon { weapon } else { prompt_input("select weapon: ")? })?;
 			let dir = format!("result/{}", weapon.id);
 			fs::create_dir_all(&dir)?;
 			for entry in fs::read_dir("data/patterns")? {
@@ -138,15 +159,15 @@ fn main() -> Result<(), self::error::Error> {
 							if results.is_empty() {
 								println!("{}: pattern not found", opponent.eno);
 							} else {
+								println!("{}: ok", opponent.eno);
 								let mut file = fs::File::create(format!("{}/{}.csv", dir, opponent.eno))?;
 								for (_, _, pattern) in results {
 									let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
-									println!("{line}");
 									writeln!(file, "{line}")?;
 								}
 							}
 						}
-						Err(Error::WeaponNoData(id)) => println!("weapon undefined: {}", id),
+						Err(Error::WeaponUndefined(id)) => println!("weapon undefined: {}", id),
 						Err(err) => return Err(err),
 					}
 				}

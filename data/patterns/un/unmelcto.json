@@ -2,6 +2,7 @@
 	"eno": "unmelcto",
 	"name": "メルクト",
 	"weapon": "undertaker",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "レイジスイング" },

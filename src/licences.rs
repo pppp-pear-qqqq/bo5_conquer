@@ -85,17 +85,28 @@ impl Licences {
 	pub fn len(&self) -> usize {
 		self.0.len()
 	}
-	pub fn get(&self, id: &str) -> Result<&Weapon, Error> {
-		self.0.iter().find(|w| w.id == id).ok_or(Error::WeaponNoData(id.to_string()))
+	pub fn get_weapon(&self, id: &str) -> Result<&Weapon, Error> {
+		self.0.iter().find(|w| w.id == id).ok_or(Error::WeaponUndefined(id.to_string()))
+	}
+	pub fn get_skill(&self, name: &str) -> Result<&Skill, Error> {
+		self.0.iter().map(|w| &w.skill_list).flatten().find(|s| s.name == name).ok_or(Error::SkillUndefined(name.into()))
 	}
 }
 
 impl Weapon {
+	pub fn new(id: &str, name: &str, skill_list: Vec<Skill>) -> Self {
+		Self {
+			id: id.to_string(),
+			name: name.to_string(),
+			skill_list,
+		}
+	}
+
 	pub fn skill(&self, idx: usize) -> &Skill {
 		&self.skill_list.get(idx).expect("error: skill_idx out of range")
 	}
 
-	pub fn skill_by_name(&self, name: &str) -> Result<u8, Error> {
+	pub fn skill_idx(&self, name: &str) -> Result<u8, Error> {
 		self.skill_list.iter().position(|s| s.name == name).map(|idx| idx as u8).ok_or(Error::SkillUndefined(name.into()))
 	}
 

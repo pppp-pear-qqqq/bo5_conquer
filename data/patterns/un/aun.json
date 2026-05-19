@@ -1,7 +1,8 @@
 {
 	"eno": "aun",
 	"name": "阿吽",
-	"weapon": "shakujo-un",
+	"weapon": "shakujo",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "五不還天" },

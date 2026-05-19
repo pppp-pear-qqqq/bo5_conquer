@@ -1,7 +1,8 @@
 {
 	"eno": "liz2",
 	"name": "シカアザ",
-	"weapon": "clawfang-un",
+	"weapon": "clawfang",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "唸り上げる" },

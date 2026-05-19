@@ -1,7 +1,8 @@
 {
 	"eno": "odionUL",
 	"name": "オディオン",
-	"weapon": "mace-un",
+	"weapon": "mace",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "見得" },

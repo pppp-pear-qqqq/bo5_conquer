@@ -1,7 +1,8 @@
 {
 	"eno": "dhruv2",
 	"name": "ドゥルーヴ",
-	"weapon": "coilsword-un",
+	"weapon": "coilsword",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "ov", "name": "アグニ" },

@@ -1,7 +1,8 @@
 {
 	"eno": "EXmeido",
 	"name": "キルシェ",
-	"weapon": "kitchenknife-un",
+	"weapon": "kitchenknife",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "みじん斬り" },

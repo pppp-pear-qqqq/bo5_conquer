@@ -1,7 +1,8 @@
 {
 	"eno": "UNfabio",
 	"name": "ファビオ",
-	"weapon": "lance-un",
+	"weapon": "lance",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "md", "name": "トンネリング" },

@@ -1,7 +1,8 @@
 {
 	"eno": "UNpancho",
 	"name": "パンチョ",
-	"weapon": "knuckleduster-un",
+	"weapon": "knuckleduster",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "", "name": "ラムアタック" },

@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 
 use serde::{Deserialize, Serialize};
@@ -67,6 +68,8 @@ struct ActorSerializeTemp {
 	eno: Eno,
 	// name: String,
 	weapon: String,
+	#[serde(default)]
+	unlimited: bool,
 	patterns: Vec<[PatternSerializeTemp; ROUND]>,
 }
 #[derive(Debug, Deserialize, Serialize)]
@@ -77,12 +80,26 @@ struct PatternSerializeTemp {
 }
 impl ActorSerializeTemp {
 	pub fn into_player(self, dict: &Licences) -> Result<Actor, Error> {
-		let weapon = dict.get(&self.weapon)?.clone();
+		let weapon = if self.unlimited {
+			let mut set = HashSet::new();
+			for p in &self.patterns {
+				for s in p {
+					set.insert(s.name.as_str());
+				}
+			}
+			let mut skill_list = Vec::new();
+			for s in &set {
+				skill_list.push(dict.get_skill(s)?.clone());
+			}
+			Weapon::new(&self.weapon, &dict.get_weapon(&self.weapon)?.name, skill_list)
+		} else {
+			dict.get_weapon(&self.weapon)?.clone()
+		};
 		let mut patterns = Vec::new();
 		for p in self.patterns {
 			let mut pattern = [255; ROUND];
 			for i in 0..ROUND {
-				pattern[i] = weapon.skill_by_name(&p[i].name)?;
+				pattern[i] = weapon.skill_idx(&p[i].name)?;
 			}
 			patterns.push(pattern);
 		}

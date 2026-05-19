@@ -1,7 +1,8 @@
 {
 	"eno": "destUN",
 	"name": "デスティロ",
-	"weapon": "rapier-un",
+	"weapon": "rapier",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "ov", "name": "サーペントテール" },
