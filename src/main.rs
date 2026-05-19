@@ -5,14 +5,14 @@ mod licences;
 
 use std::collections::HashSet;
 use std::fs;
-use std::io::{self, Write};
+use std::io::Write;
+use std::str::FromStr;
 
 use clap::{Parser, Subcommand};
 
-use crate::greedy::greedy;
-
 use self::actor::Actor;
 use self::error::Error;
+use self::greedy::greedy;
 use self::licences::{Licences, SkillType, Weapon};
 
 const ROUND: usize = 5;
@@ -33,14 +33,8 @@ enum Mode {
 		opponent: Option<String>,
 		#[arg(short, long)]
 		min_rate: Option<f32>,
-	},
-	Simulate {
 		#[arg(short, long)]
-		al_weapon: Option<String>,
-		#[arg(short, long)]
-		op_weapon: Option<String>,
-		al_pattern: Option<String>,
-		op_pattern: Option<String>,
+		out_file: Option<String>,
 	},
 	AllFind {
 		#[arg(short, long)]
@@ -51,131 +45,161 @@ enum Mode {
 	Greedy {
 		#[arg(short, long)]
 		weapon: String,
+		#[arg(short, long)]
+		out_file: Option<String>,
+	},
+	Simulate {
+		#[arg(short, long)]
+		al_weapon: Option<String>,
+		#[arg(short, long)]
+		op_weapon: Option<String>,
+		al_pattern: Option<String>,
+		op_pattern: Option<String>,
 	},
 	Registration,
 }
 
 fn main() -> Result<(), self::error::Error> {
-	let prompt_input = |msg: &str| -> Result<String, io::Error> {
-		print!("{}", msg);
-		std::io::stdout().flush()?;
-		let mut input = String::new();
-		std::io::stdin().read_line(&mut input)?;
-		Ok(input.trim().to_string())
-	};
-
 	let args = Args::parse();
 
+	// ライセンス読み込み
 	let dict = Licences::load("data/licences.json")?;
 	println!("loaded {} weapons", dict.len());
 
-	let mode = match args.mode {
-		Some(mode) => mode,
-		None => {
-			let input = prompt_input("select mode([f]ind/[s]imulate/[a]ll-find): ")?;
-			match input.as_str() {
-				"f" | "find" => Mode::Find {
-					weapon: None,
-					opponent: None,
-					min_rate: None,
-				},
-				"s" | "simulate" => Mode::Simulate {
-					al_weapon: None,
-					op_weapon: None,
-					al_pattern: None,
-					op_pattern: None,
-				},
-				"a" | "all-find" => Mode::AllFind { weapon: None, overwrite: false },
-				_ => return Err(Error::InvalidInput(input)),
-			}
-		}
-	};
+	match args.mode.unwrap_or_input("select mode([f]ind/[s]imulate/[a]ll-find): ")? {
+		// 1件探索
+		Mode::Find { weapon, opponent, min_rate, out_file } => {
+			// 引数処理
+			let weapon = dict.get_weapon(&weapon.unwrap_or_input("select your weapon: ")?)?;
+			let opponent = Actor::load(format!("data/patterns/{}.json", opponent.unwrap_or_input("select your opponent: ")?), &dict)?;
+			let min_rate = min_rate.unwrap_or_input("min rate: ")?;
 
-	match mode {
-		Mode::Find { weapon, opponent, min_rate } => {
-			println!("find mode: weapon={:?} opponent={:?} min_rate={:?}", weapon, opponent, min_rate);
-			let weapon = dict.get_weapon(&if let Some(weapon) = weapon { weapon } else { prompt_input("select your weapon: ")? })?;
-			let opponent = Actor::load(
-				format!("data/patterns/{}.json", if let Some(opponent) = opponent { opponent } else { prompt_input("select your opponent: ")? }),
-				&dict,
-			)?;
-			let min_rate = if let Some(min_rate) = min_rate {
-				min_rate
-			} else {
-				prompt_input("min rate: ")?.parse().map_err(|_| Error::InvalidInput("{rate}".into()))?
-			};
-
+			// 探索
 			let results = opponent.find_pattern(weapon, min_rate, true);
+
+			// 表示
 			if results.is_empty() {
 				println!("pattern not found");
 			} else {
-				for (score, draw_rate, pattern) in results {
-					print!("{:.2}({:.2})\t", score, draw_rate);
-					for i in 0..pattern.len() {
-						print!("{}", weapon.skill(pattern[i] as usize).name);
-						if i < pattern.len() - 1 {
-							print!(", ");
-						}
+				let mut file = if let Some(path) = out_file { Some(fs::File::create(path)?) } else { None };
+				for (win, draw, pattern) in results {
+					let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
+					println!("{win:.2}({draw:.2})\t{line}");
+					if let Some(file) = &mut file {
+						writeln!(file, "{win:.2},{draw:.2},{line}")?;
 					}
-					println!();
 				}
 			}
+
 			Ok(())
 		}
+		// 全件探索
+		Mode::AllFind { weapon, overwrite } => {
+			// 引数処理
+			let weapon = dict.get_weapon(&weapon.unwrap_or_input("select your weapon: ")?)?;
+
+			// 対象ディレクトリ作成
+			let dir = format!("result/{}", weapon.id);
+			fs::create_dir_all(&dir)?;
+
+			// 全件探索
+			for entry in fs::read_dir("data/patterns")? {
+				let path = entry?.path();
+				if path.is_file() {
+					let opponent = Actor::load(path, &dict)?;
+					if !overwrite && fs::exists(format!("{}/{}.csv", dir, opponent.eno))? {
+						continue;
+					}
+					let results = opponent.find_pattern(&weapon, 1.0, false);
+					if results.is_empty() {
+						println!("{}: pattern not found", opponent.eno);
+					} else {
+						println!("{}: ok", opponent.eno);
+						let mut file = fs::File::create(format!("{}/{}.csv", dir, opponent.eno))?;
+						for (win, draw, pattern) in results {
+							let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
+							writeln!(file, "{win:.2},{draw:.2},{line}")?;
+						}
+					}
+				}
+			}
+
+			Ok(())
+		}
+		// 一貫するパターン探索
+		Mode::Greedy { weapon, out_file } => {
+			greedy(format!("result/{weapon}"), out_file)?;
+
+			Ok(())
+		}
+		// 闘技シミュレーション
 		Mode::Simulate {
 			al_weapon,
 			op_weapon,
 			al_pattern,
 			op_pattern,
 		} => {
-			let al_weapon = dict.get_weapon(&if let Some(al_weapon) = al_weapon { al_weapon } else { prompt_input("select your weapon: ")? })?;
-			let op_weapon = dict.get_weapon(&if let Some(op_weapon) = op_weapon { op_weapon } else { prompt_input("select opponent weapon: ")? })?;
-			let al_pattern = parse_pattern(&if let Some(al_pattern) = al_pattern { al_pattern } else { prompt_input("your pattern: ")? })?;
-			let op_pattern = parse_pattern(&if let Some(op_pattern) = op_pattern { op_pattern } else { prompt_input("opponent pattern: ")? })?;
+			// 引数処理
+			let al_weapon = dict.get_weapon(&al_weapon.unwrap_or_input("select your weapon: ")?)?;
+			let op_weapon = dict.get_weapon(&op_weapon.unwrap_or_input("select opponent weapon: ")?)?;
+			let al_pattern = parse_pattern(&al_pattern.unwrap_or_input("your pattern: ")?)?;
+			let op_pattern = parse_pattern(&op_pattern.unwrap_or_input("opponent pattern: ")?)?;
 
+			// シミュレート実行
 			let (p1_score, p2_score) = simulate_duel(&al_weapon, &al_pattern, op_weapon, &op_pattern, false);
 			match p1_score.cmp(&p2_score) {
 				std::cmp::Ordering::Greater => println!("win: left\t({} : {})", p1_score, p2_score),
 				std::cmp::Ordering::Less => println!("win: right\t({} : {})", p1_score, p2_score),
 				std::cmp::Ordering::Equal => println!("draw\t({} : {})", p1_score, p2_score),
 			}
+
 			Ok(())
 		}
-		Mode::AllFind { weapon, overwrite } => {
-			let weapon = dict.get_weapon(&if let Some(weapon) = weapon { weapon } else { prompt_input("select weapon: ")? })?;
-			let dir = format!("result/{}", weapon.id);
-			fs::create_dir_all(&dir)?;
-			for entry in fs::read_dir("data/patterns")? {
-				let entry = entry?;
-				let path = entry.path();
-				if path.is_file() {
-					match Actor::load(path, &dict) {
-						Ok(opponent) => {
-							if !overwrite && fs::exists(format!("{}/{}.csv", dir, opponent.eno))? {
-								println!("{}: skipped", opponent.eno);
-								continue;
-							}
-							let results = opponent.find_pattern(&weapon, 1.0, false);
-							if results.is_empty() {
-								println!("{}: pattern not found", opponent.eno);
-							} else {
-								println!("{}: ok", opponent.eno);
-								let mut file = fs::File::create(format!("{}/{}.csv", dir, opponent.eno))?;
-								for (_, _, pattern) in results {
-									let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
-									writeln!(file, "{line}")?;
-								}
-							}
-						}
-						Err(Error::WeaponUndefined(id)) => println!("weapon undefined: {}", id),
-						Err(err) => return Err(err),
-					}
-				}
-			}
-			Ok(())
-		}
-		Mode::Greedy { weapon } => greedy(format!("result/{weapon}")),
+		// データ登録
 		Mode::Registration => todo!(),
+	}
+}
+
+trait OptionUnwrap {
+	type Output;
+	fn unwrap_or_input(self, prompt: &str) -> Result<Self::Output, Error>;
+}
+impl<T: FromStr> OptionUnwrap for Option<T> {
+	type Output = T;
+	fn unwrap_or_input(self, prompt: &str) -> Result<T, Error> {
+		match self {
+			Some(value) => Ok(value),
+			None => {
+				print!("{}", prompt);
+				std::io::stdout().flush()?;
+				let mut input = String::new();
+				std::io::stdin().read_line(&mut input)?;
+				Ok(input.trim().parse::<T>().map_err(|_| Error::InvalidInput(input.into()))?)
+			}
+		}
+	}
+}
+
+impl FromStr for Mode {
+	type Err = Error;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		Ok(match s {
+			"f" | "find" => Self::Find {
+				weapon: None,
+				opponent: None,
+				min_rate: None,
+				out_file: None,
+			},
+			"s" | "simulate" => Self::Simulate {
+				al_weapon: None,
+				op_weapon: None,
+				al_pattern: None,
+				op_pattern: None,
+			},
+			"a" | "all-find" => Self::AllFind { weapon: None, overwrite: false },
+			_ => return Err(Error::InvalidInput(s.into())),
+		})
 	}
 }
 
@@ -184,7 +208,7 @@ fn parse_pattern(input: &str) -> Result<Pattern, Error> {
 	if parts.len() != ROUND {
 		return Err(Error::InvalidInput(format!("require {} numbers", ROUND)));
 	}
-	let mut pattern = [0; ROUND];
+	let mut pattern = [u8::MAX; ROUND];
 	for i in 0..ROUND {
 		pattern[i] = parts[i].parse::<u8>().map_err(|e| Error::InvalidInput(e.to_string()))?;
 	}
