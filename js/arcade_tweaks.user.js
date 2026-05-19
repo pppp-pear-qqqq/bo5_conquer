@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         アーケード簡易化
+// @name         ARCADE Tweaks
 // @namespace    http://tampermonkey.net/
 // @version      2026-05-15
 // @description  アーケードモード攻略時に発生するいろんな不満の解消
