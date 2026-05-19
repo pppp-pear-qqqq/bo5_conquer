@@ -55,7 +55,7 @@
 			e.addEventListener('click', () => {
 				const stage = e.dataset.stage;
 				const name = form.querySelector(`.next_ch[data-npc="${stage}"] [data-name]`).dataset.name;
-				search_box.value = `${name}|${stage}`;
+				search_box.value = `${stage}|${name}`;
 				search_box.dispatchEvent(new Event('input'));
 			})
 		}
