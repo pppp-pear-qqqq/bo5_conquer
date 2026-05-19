@@ -1,0 +1,155 @@
+[
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "ab, anupe, asr, boku, evans, hsm, ikusa, janome, kaizoku, matador, natalie, oba, occhan, pancho, panda, queen, retu, sake, shin, sp, uti, zodo",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_04",
+		"skill_r3": "estoc_01",
+		"skill_r4": "estoc_05",
+		"skill_r5": "estoc_04"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "armitia, braw, dolly, ema, gust, hilarius, himawari, katz, kirisaki, melody, mount, nkhammer, patty, valor, wisp, yoyo",
+		"skill_r1": "estoc_04",
+		"skill_r2": "estoc_02",
+		"skill_r3": "estoc_01",
+		"skill_r4": "estoc_01",
+		"skill_r5": "estoc_02"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "bando, dhruv, fabio, johnsts, kgym, kkk, majd, mido, mkw, shuka, un, x404x, zag",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_01",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_04"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "ahuro, ibuchi, meido, no4, schild, tombi, tora, wosensei",
+		"skill_r1": "estoc_02",
+		"skill_r2": "estoc_02",
+		"skill_r3": "estoc_04",
+		"skill_r4": "estoc_01",
+		"skill_r5": "estoc_05"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "bible, constn, doom, lightn, samekh, simon, zilla",
+		"skill_r1": "estoc_01",
+		"skill_r2": "estoc_04",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_01"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "fuyu, onigaeru, owen, pise, rinto",
+		"skill_r1": "estoc_04",
+		"skill_r2": "estoc_01",
+		"skill_r3": "estoc_02",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_05"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "dest, dia, kuma, machi, odion",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_03",
+		"skill_r3": "estoc_04",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_02"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "captain, jungle, ningyo",
+		"skill_r1": "estoc_04",
+		"skill_r2": "estoc_03",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_02",
+		"skill_r5": "estoc_05"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "kius, tama",
+		"skill_r1": "estoc_05",
+		"skill_r2": "estoc_01",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_04"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "call, inu",
+		"skill_r1": "estoc_02",
+		"skill_r2": "estoc_04",
+		"skill_r3": "estoc_05",
+		"skill_r4": "estoc_01",
+		"skill_r5": "estoc_04"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "liz, rgn",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_04",
+		"skill_r3": "estoc_04",
+		"skill_r4": "estoc_02",
+		"skill_r5": "estoc_02"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "otosikuro",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_02",
+		"skill_r3": "estoc_02",
+		"skill_r4": "estoc_05",
+		"skill_r5": "estoc_03"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "murogaki",
+		"skill_r1": "estoc_05",
+		"skill_r2": "estoc_02",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_02",
+		"skill_r5": "estoc_03"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "calamity",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_03",
+		"skill_r3": "estoc_01",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_05"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "ron",
+		"skill_r1": "estoc_02",
+		"skill_r2": "estoc_02",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_04"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "johndoe",
+		"skill_r1": "estoc_04",
+		"skill_r2": "estoc_01",
+		"skill_r3": "estoc_03",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_01"
+	},
+	{
+		"w_id_slug": "estoc",
+		"btst_name": "hurong",
+		"skill_r1": "estoc_03",
+		"skill_r2": "estoc_04",
+		"skill_r3": "estoc_01",
+		"skill_r4": "estoc_04",
+		"skill_r5": "estoc_03"
+	}
+]
