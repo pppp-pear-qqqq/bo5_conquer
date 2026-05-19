@@ -33,12 +33,16 @@ enum Mode {
 		opponent: Option<String>,
 		#[arg(short, long)]
 		min_rate: Option<f32>,
-		#[arg(short, long)]
-		out_file: Option<String>,
+		#[arg(short = 'r', long)]
+		out_dir: Option<String>,
 	},
 	AllFind {
 		#[arg(short, long)]
 		weapon: Option<String>,
+		#[arg(short, long, default_value = "1.0")]
+		min_rate: f32,
+		#[arg(short, long, default_value = "false")]
+		allow_draw: bool,
 		#[arg(long, default_value = "false")]
 		overwrite: bool,
 	},
@@ -68,7 +72,7 @@ fn main() -> Result<(), self::error::Error> {
 
 	match args.mode.unwrap_or_input("select mode([f]ind/[s]imulate/[a]ll-find): ")? {
 		// 1件探索
-		Mode::Find { weapon, opponent, min_rate, out_file } => {
+		Mode::Find { weapon, opponent, min_rate, out_dir } => {
 			// 引数処理
 			let weapon = dict.get_weapon(&weapon.unwrap_or_input("select your weapon: ")?)?;
 			let opponent = Actor::load(format!("data/patterns/{}.json", opponent.unwrap_or_input("select your opponent: ")?), &dict)?;
@@ -81,7 +85,12 @@ fn main() -> Result<(), self::error::Error> {
 			if results.is_empty() {
 				println!("pattern not found");
 			} else {
-				let mut file = if let Some(path) = out_file { Some(fs::File::create(path)?) } else { None };
+				let mut file = if let Some(dir) = out_dir {
+					fs::create_dir_all(&dir)?;
+					Some(fs::File::create(format!("{dir}/{}.csv", opponent.eno))?)
+				} else {
+					None
+				};
 				for (win, draw, pattern) in results {
 					let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
 					println!("{win:.2}({draw:.2})\t{line}");
@@ -94,7 +103,7 @@ fn main() -> Result<(), self::error::Error> {
 			Ok(())
 		}
 		// 全件探索
-		Mode::AllFind { weapon, overwrite } => {
+		Mode::AllFind { weapon, min_rate, allow_draw, overwrite } => {
 			// 引数処理
 			let weapon = dict.get_weapon(&weapon.unwrap_or_input("select your weapon: ")?)?;
 
@@ -110,7 +119,7 @@ fn main() -> Result<(), self::error::Error> {
 					if !overwrite && fs::exists(format!("{}/{}.csv", dir, opponent.eno))? {
 						continue;
 					}
-					let results = opponent.find_pattern(&weapon, 1.0, false);
+					let results = opponent.find_pattern(&weapon, min_rate, allow_draw);
 					if results.is_empty() {
 						println!("{}: pattern not found", opponent.eno);
 					} else {
@@ -127,18 +136,13 @@ fn main() -> Result<(), self::error::Error> {
 			Ok(())
 		}
 		// 一貫するパターン探索
-		Mode::Greedy { weapon, out_file } => {
-			greedy(format!("result/{weapon}"), out_file)?;
+		Mode::Greedy { weapon, out_file: result } => {
+			greedy(format!("result/{weapon}"), result)?;
 
 			Ok(())
 		}
 		// 闘技シミュレーション
-		Mode::Simulate {
-			al_weapon,
-			op_weapon,
-			al_pattern,
-			op_pattern,
-		} => {
+		Mode::Simulate { al_weapon, op_weapon, al_pattern, op_pattern } => {
 			// 引数処理
 			let al_weapon = dict.get_weapon(&al_weapon.unwrap_or_input("select your weapon: ")?)?;
 			let op_weapon = dict.get_weapon(&op_weapon.unwrap_or_input("select opponent weapon: ")?)?;
@@ -185,19 +189,9 @@ impl FromStr for Mode {
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		Ok(match s {
-			"f" | "find" => Self::Find {
-				weapon: None,
-				opponent: None,
-				min_rate: None,
-				out_file: None,
-			},
-			"s" | "simulate" => Self::Simulate {
-				al_weapon: None,
-				op_weapon: None,
-				al_pattern: None,
-				op_pattern: None,
-			},
-			"a" | "all-find" => Self::AllFind { weapon: None, overwrite: false },
+			"f" | "find" => Self::Find { weapon: None, opponent: None, min_rate: None, out_dir: None },
+			"s" | "simulate" => Self::Simulate { al_weapon: None, op_weapon: None, al_pattern: None, op_pattern: None },
+			"a" | "all-find" => Self::AllFind { weapon: None, min_rate: 1.0, allow_draw: false, overwrite: false },
 			_ => return Err(Error::InvalidInput(s.into())),
 		})
 	}

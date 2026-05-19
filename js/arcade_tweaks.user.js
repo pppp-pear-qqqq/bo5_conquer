@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ARCADE Tweaks
 // @namespace    http://tampermonkey.net/
-// @version      2026-05-15
+// @version      0.1.0
 // @description  アーケードモード攻略時に発生するいろんな不満の解消
 // @author       なしなし
 // @match        https://wdrb.work/bo5/battle_lobby.php?mode=arcade

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         戦闘設定保存
 // @namespace    http://tampermonkey.net/
-// @version      2026-05-15
-// @description  戦闘設定をダウンロードする
+// @version      0.1.0
+// @description  戦闘設定をダウンロードする　なんかこれ課金機能らしいんで大人しく課金してください
 // @author       なしなし
 // @match        https://wdrb.work/bo5/profile.php?eno=*&type=npc
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wdrb.work/bo5
