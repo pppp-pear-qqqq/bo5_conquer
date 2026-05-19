@@ -90,7 +90,12 @@ fn load<P: AsRef<Path>>(dir_path: P) -> Result<Option<(HashMap<String, Vec<Strin
 				if line.is_empty() {
 					continue;
 				}
-				records.push(line.to_string());
+				let fields: Vec<&str> = line.split(',').collect();
+				if fields.len() != 7 {
+					continue;
+				}
+				let filtered_fields: String = fields.into_iter().skip(2).collect::<Vec<&str>>().join(",");
+				records.push(filtered_fields);
 			}
 			opponent_matrix.insert(opponent_name, records);
 		}
