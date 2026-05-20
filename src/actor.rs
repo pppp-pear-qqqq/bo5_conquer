@@ -3,8 +3,9 @@ use std::fs;
 
 use serde::{Deserialize, Serialize};
 
+use crate::command::duel;
 use crate::licences::{Licences, Weapon};
-use crate::{Error, Pattern, ROUND, simulate_duel};
+use crate::{Error, Pattern, ROUND};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(untagged)]
@@ -48,7 +49,7 @@ impl Actor {
 			let mut win = 0;
 			let mut draw = 0;
 			for p2_pattern in &self.patterns {
-				let (p1_score, p2_score) = simulate_duel(weapon, &p1_pattern, &self.weapon, p2_pattern, true);
+				let (p1_score, p2_score) = duel(weapon, &p1_pattern, &self.weapon, p2_pattern, true);
 				if p1_score > p2_score {
 					win += 1;
 				} else if p1_score == p2_score {

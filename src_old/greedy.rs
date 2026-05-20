@@ -53,12 +53,8 @@ pub fn greedy<P: AsRef<Path>>(dir_path: P, out_file: Option<P>) -> Result<(), Er
 		selected_perfect_patterns.push((chosen_pattern, covered_list));
 	}
 
-	if let Some(out_file) = out_file {
-		let mut file = fs::File::create(out_file)?;
-		for (idx, (pattern, targets)) in selected_perfect_patterns.iter().enumerate() {
-			writeln!(file, "\n[パターン {}] : {}", idx + 1, pattern)?;
-			writeln!(file, "  -> 100%勝てる相手 ({}名): {}", targets.len(), targets.join(", "))?;
-		}
+	if let Some(out_path) = out_file {
+		output(out_path, &selected_perfect_patterns)?;
 	}
 
 	println!("必須パターン数: {} パターン", selected_perfect_patterns.len());
@@ -106,4 +102,13 @@ fn load<P: AsRef<Path>>(dir_path: P) -> Result<Option<(HashMap<String, Vec<Strin
 	}
 
 	Ok(Some((opponent_matrix, all_opponents)))
+}
+
+fn output<P: AsRef<Path>>(out_path: P, patterns: &[(String, Vec<String>)]) -> Result<(), io::Error> {
+	let mut file = fs::File::create(out_path)?;
+	for (pattern, targets) in patterns {
+		writeln!(file, "{}", pattern)?;
+		writeln!(file, "  -> 100%勝てる相手 ({}名): {}", targets.len(), targets.join(", "))?;
+	}
+	Ok(())
 }

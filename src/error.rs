@@ -4,7 +4,6 @@ pub enum Error {
 	Serde(serde_json::Error),
 	WeaponUndefined(String),
 	SkillUndefined(String),
-	InvalidInput(String),
 }
 
 impl From<std::io::Error> for Error {
@@ -25,7 +24,6 @@ impl std::fmt::Display for Error {
 			Error::Serde(e) => write!(f, "Serde error: {}", e),
 			Error::WeaponUndefined(e) => write!(f, "Weapon unauthorized({})", e),
 			Error::SkillUndefined(e) => write!(f, "Skill undefined({})", e),
-			Error::InvalidInput(e) => write!(f, "Invalid input({})", e),
 		}
 	}
 }
@@ -37,7 +35,6 @@ impl std::error::Error for Error {
 			Error::Serde(e) => Some(e),
 			Error::WeaponUndefined(_) => None,
 			Error::SkillUndefined(_) => None,
-			Error::InvalidInput(_) => None,
 		}
 	}
 }
