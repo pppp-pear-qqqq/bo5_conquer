@@ -47,7 +47,7 @@ pub fn find(out: Output, weapon: &Weapon, opponent: Actor) -> Result<(), Error> 
 		let mut out = out.gen_write(&format!("{}.csv", opponent.eno))?;
 		for pattern in results {
 			let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
-			writeln!(out, "{win:.2},{draw:.2},{line}")?;
+			writeln!(out, "{:03.0},{:03.0},{line}", win * 100.0, draw * 100.0)?;
 		}
 	}
 
@@ -75,7 +75,7 @@ pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String
 				};
 				for pattern in results {
 					let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
-					writeln!(out, "{win:.2},{draw:.2},{line}")?;
+					writeln!(out, "{:03.0},{:03.0},{line}", win * 100.0, draw * 100.0)?;
 				}
 			}
 		}
@@ -149,7 +149,7 @@ pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: b
 		let win = iter.next().unwrap_or("");
 		let draw = iter.next().unwrap_or("");
 		write!(out, "{{\"w_id_slug\":\"{}\",\"btst_name\":\"{win}|{}\"", weapon.id, targets.join(","))?;
-		if !(win == "1.00" || draw == "1.00") {
+		if !(win == "100" || draw == "100") {
 			write!(out, ",\"color\":\"{UNCERTAIN_COLOR}\"")?;
 		}
 		for (idx, part) in iter.enumerate() {
