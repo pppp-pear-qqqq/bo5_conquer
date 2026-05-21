@@ -31,10 +31,6 @@ enum Mode {
 		weapon: Option<String>,
 		#[arg(short, long)]
 		opponent: Option<String>,
-		#[arg(short, long)]
-		min_score: Option<f32>,
-		#[arg(short, long, default_value = "true")]
-		allow_draw: bool,
 	},
 	// 全相手をまとめて
 	FindAll {
@@ -42,10 +38,6 @@ enum Mode {
 		weapon: Option<String>,
 		#[arg(short, long, default_value = "data/patterns")]
 		input_dir: String,
-		#[arg(short, long, default_value = "1.0")]
-		min_score: f32,
-		#[arg(short, long, default_value = "false")]
-		allow_draw: bool,
 	},
 	// 一貫するパターン探索
 	Consistents {
@@ -89,17 +81,10 @@ impl FromStr for Mode {
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		Ok(match s {
-			"f" | "find" => Self::Find {
-				weapon: None,
-				opponent: None,
-				min_score: None,
-				allow_draw: true,
-			},
+			"f" | "find" => Self::Find { weapon: None, opponent: None },
 			"a" | "find-all" => Self::FindAll {
 				weapon: None,
 				input_dir: "data/patterns".to_string(),
-				min_score: 1.0,
-				allow_draw: false,
 			},
 			"c" | "consistents" => Self::Consistents {
 				weapon: None,
@@ -141,27 +126,13 @@ impl Output {
 impl Mode {
 	fn input(self) -> Result<Self, io::Error> {
 		match self {
-			Self::Find {
-				weapon,
-				opponent,
-				min_score,
-				allow_draw,
-			} => Ok(Self::Find {
+			Self::Find { weapon, opponent } => Ok(Self::Find {
 				weapon: Some(weapon.unwrap_or_input("select your weapon: ")?),
 				opponent: Some(opponent.unwrap_or_input("select opponent: ")?),
-				min_score: Some(min_score.unwrap_or_input("min rate: ")?),
-				allow_draw,
 			}),
-			Self::FindAll {
-				weapon,
-				input_dir,
-				min_score,
-				allow_draw,
-			} => Ok(Self::FindAll {
+			Self::FindAll { weapon, input_dir } => Ok(Self::FindAll {
 				weapon: Some(weapon.unwrap_or_input("select your weapon: ")?),
 				input_dir,
-				min_score,
-				allow_draw,
 			}),
 			Self::Consistents { weapon, input_dir, recursive } => Ok(Self::Consistents {
 				weapon: Some(weapon.unwrap_or_input("input your weapon id: ")?),
@@ -189,27 +160,11 @@ fn main() -> Result<(), Error> {
 	// モード分岐
 	let mode = args.mode.unwrap_or_input("select mode([f]ind/[a]ll-find/[c]onsistents/[s]imulate): ")?.input()?;
 	match mode {
-		Mode::Find {
-			weapon,
-			opponent,
-			min_score,
-			allow_draw,
-		} => {
-			command::find(
-				out,
-				dict.get_weapon(&weapon.unwrap())?,
-				actor::Actor::load(format!("data/patterns/{}.json", opponent.unwrap()), &dict)?,
-				min_score.unwrap(),
-				allow_draw,
-			)?;
+		Mode::Find { weapon, opponent } => {
+			command::find(out, dict.get_weapon(&weapon.unwrap())?, actor::Actor::load(format!("data/patterns/{}.json", opponent.unwrap()), &dict)?)?;
 		}
-		Mode::FindAll {
-			weapon,
-			input_dir,
-			min_score,
-			allow_draw,
-		} => {
-			command::find_all(out, &dict, dict.get_weapon(&weapon.unwrap())?, input_dir, min_score, allow_draw)?;
+		Mode::FindAll { weapon, input_dir } => {
+			command::find_all(out, &dict, dict.get_weapon(&weapon.unwrap())?, input_dir)?;
 		}
 		Mode::Consistents { weapon, input_dir, recursive } => {
 			command::consistents(out, dict.get_weapon(&weapon.unwrap())?, input_dir.unwrap(), recursive)?;

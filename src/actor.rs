@@ -43,7 +43,9 @@ impl Actor {
 	// 	Ok(())
 	// }
 
-	pub fn find_pattern(&self, weapon: &Weapon, min_score: f32, allow_draw: bool) -> Vec<(f32, f32, Pattern)> {
+	pub fn find_best_pattern(&self, weapon: &Weapon) -> (f32, f32, Vec<Pattern>) {
+		let mut max_win = 0;
+		let mut max_draw = 0;
 		let mut results = Vec::new();
 		for p1_pattern in weapon.enumerate_skill_patterns() {
 			let mut win = 0;
@@ -56,11 +58,20 @@ impl Actor {
 					draw += 1;
 				}
 			}
-			let den = self.patterns.len() as f32;
-			results.push((win as f32 / den, (win + draw) as f32 / den, p1_pattern));
+			if results.is_empty() || win > max_win || (win == max_win && draw > max_draw) {
+				max_win = win;
+				max_draw = draw;
+				results.clear();
+				results.push(p1_pattern);
+			} else if win == max_win && draw == max_draw {
+				results.push(p1_pattern);
+			}
 		}
-		results.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap().then_with(|| b.1.partial_cmp(&a.1).unwrap()));
-		results.into_iter().filter(|(win, draw, _)| if !allow_draw { *win >= min_score } else { *draw >= min_score }).collect()
+		// 最後に計算して指定の戻り値の型に変換する
+		let den = self.patterns.len() as f32;
+		let win_rate = max_win as f32 / den;
+		let win_draw_rate = (max_win + max_draw) as f32 / den;
+		(win_rate, win_draw_rate, results)
 	}
 }
 

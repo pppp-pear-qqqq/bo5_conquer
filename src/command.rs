@@ -35,8 +35,8 @@ pub fn duel(p1_weapon: &Weapon, p1_pattern: &Pattern, p2_weapon: &Weapon, p2_pat
 	(p1_score, p2_score)
 }
 
-pub fn find(out: Output, weapon: &Weapon, opponent: Actor, min_score: f32, allow_draw: bool) -> Result<(), Error> {
-	let results = opponent.find_pattern(weapon, min_score, allow_draw);
+pub fn find(out: Output, weapon: &Weapon, opponent: Actor) -> Result<(), Error> {
+	let (win, draw, results) = opponent.find_best_pattern(weapon);
 
 	// 表示
 	if results.is_empty() {
@@ -45,7 +45,7 @@ pub fn find(out: Output, weapon: &Weapon, opponent: Actor, min_score: f32, allow
 		println!("ok");
 		out.make_dir()?;
 		let mut out = out.gen_write(&format!("{}.csv", opponent.eno))?;
-		for (win, draw, pattern) in results {
+		for pattern in results {
 			let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
 			writeln!(out, "{win:.2},{draw:.2},{line}")?;
 		}
@@ -54,14 +54,14 @@ pub fn find(out: Output, weapon: &Weapon, opponent: Actor, min_score: f32, allow
 	Ok(())
 }
 
-pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String, min_score: f32, allow_draw: bool) -> Result<(), Error> {
+pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String) -> Result<(), Error> {
 	out.make_dir()?;
 	// 全件探索
 	for entry in std::fs::read_dir(&input_dir)? {
 		let path = entry?.path();
 		if path.is_file() {
 			let opponent = Actor::load(path, &dict)?;
-			let results = opponent.find_pattern(&weapon, min_score, allow_draw);
+			let (win, draw, results) = opponent.find_best_pattern(&weapon);
 			if results.is_empty() {
 				println!("{}: pattern not found", opponent.eno);
 			} else {
@@ -73,7 +73,7 @@ pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String
 					Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => continue,
 					Err(err) => return Err(Error::Io(err)),
 				};
-				for (win, draw, pattern) in results {
+				for pattern in results {
 					let line = pattern.into_iter().map(|p| weapon.skill(p as usize).name.clone()).collect::<Vec<_>>().join(",");
 					writeln!(out, "{win:.2},{draw:.2},{line}")?;
 				}
@@ -84,6 +84,7 @@ pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String
 }
 
 pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: bool) -> Result<(), Error> {
+	const UNCERTAIN_COLOR: &str = "#DB99FF";
 	let (opponent_matrix, all_opponents) = match consistents_load(input_dir, recursive)? {
 		Some(result) => result,
 		None => {
@@ -144,9 +145,15 @@ pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: b
 		} else {
 			write!(out, ",")?;
 		}
-		write!(out, "{{\"w_id_slug\":\"{}\",\"btst_name\":\"{}\"", weapon.id, targets.join(", "))?;
-		for (idx, part) in pattern.split(',').enumerate() {
-			write!(out, ",\"skill_r{}\":\"{}_{}\"", idx + 1, weapon.id, weapon.skill_idx(part)? + 1)?;
+		let mut iter = pattern.split(',');
+		let win = iter.next().unwrap_or("");
+		let draw = iter.next().unwrap_or("");
+		write!(out, "{{\"w_id_slug\":\"{}\",\"btst_name\":\"{win}|{}\"", weapon.id, targets.join(","))?;
+		if !(win == "1.00" || draw == "1.00") {
+			write!(out, ",\"color\":\"{UNCERTAIN_COLOR}\"")?;
+		}
+		for (idx, part) in iter.enumerate() {
+			write!(out, ",\"skill_r{}\":\"{}_{:02}\"", idx + 1, weapon.id, weapon.skill_idx(part)? + 1)?;
 		}
 		write!(out, "}}")?;
 	}
@@ -180,12 +187,13 @@ fn consistents_load<P: AsRef<std::path::Path>>(dir_path: P, recursive: bool) -> 
 					if line.is_empty() {
 						continue;
 					}
-					let fields: Vec<&str> = line.split(',').collect();
-					if fields.len() != 7 {
-						continue;
-					}
-					let filtered_fields: String = fields.into_iter().skip(2).collect::<Vec<&str>>().join(",");
-					records.push(filtered_fields);
+					// let fields: Vec<&str> = line.split(',').collect();
+					// if fields.len() != 7 {
+					// 	continue;
+					// }
+					// let filtered_fields: String = fields.into_iter().skip(2).collect::<Vec<&str>>().join(",");
+					// records.push(filtered_fields);
+					records.push(line.to_string());
 				}
 
 				opponent_matrix.insert(opponent_name, records);
