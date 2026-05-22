@@ -1,12 +1,11 @@
-use std::collections::{HashMap, HashSet};
-
 use crate::actor::Actor;
 use crate::licences::{Licences, SkillType, Weapon};
 use crate::{Error, Output, Pattern, ROUND};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 pub fn duel(p1_weapon: &Weapon, p1_pattern: &Pattern, p2_weapon: &Weapon, p2_pattern: &Pattern, quiet: bool) -> (i32, i32) {
 	const VOLTAGE: [f32; 5] = [1.0, 1.1, 1.25, 1.5, 2.0];
-	let (mut p1_voltage, mut p2_voltage) = (HashSet::new(), HashSet::new());
+	let (mut p1_voltage, mut p2_voltage) = (FxHashSet::default(), FxHashSet::default());
 	let (mut p1_score, mut p2_score) = (0, 0);
 	for i in 0..ROUND {
 		let p1 = p1_weapon.skill(p1_pattern[i] as usize);
@@ -94,10 +93,10 @@ pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: b
 	};
 	println!("load complete: {}", all_opponents.len());
 
-	let mut perfect_coverage: HashMap<String, HashSet<String>> = HashMap::new();
+	let mut perfect_coverage: FxHashMap<String, FxHashSet<String>> = FxHashMap::default();
 	for (opponent, records) in &opponent_matrix {
 		for rec in records {
-			perfect_coverage.entry(rec.clone()).or_insert_with(HashSet::new).insert(opponent.clone());
+			perfect_coverage.entry(rec.clone()).or_insert_with(FxHashSet::default).insert(opponent.clone());
 		}
 	}
 
@@ -106,11 +105,11 @@ pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: b
 
 	while !uncovered.is_empty() {
 		let mut best_pattern: Option<String> = None;
-		let mut best_covered_opponents: HashSet<String> = HashSet::new();
+		let mut best_covered_opponents: FxHashSet<String> = FxHashSet::default();
 		let mut max_count = 0;
 
 		for (pattern, covered_set) in &perfect_coverage {
-			let current_covered: HashSet<String> = covered_set.intersection(&uncovered).cloned().collect();
+			let current_covered: FxHashSet<String> = covered_set.intersection(&uncovered).cloned().collect();
 			if current_covered.len() > max_count {
 				max_count = current_covered.len();
 				best_pattern = Some(pattern.clone());
@@ -161,9 +160,9 @@ pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: b
 	out.flush()?;
 	Ok(())
 }
-fn consistents_load<P: AsRef<std::path::Path>>(dir_path: P, recursive: bool) -> Result<Option<(HashMap<String, Vec<String>>, HashSet<String>)>, std::io::Error> {
-	let mut opponent_matrix: HashMap<String, Vec<String>> = HashMap::new();
-	let mut all_opponents = HashSet::new();
+fn consistents_load<P: AsRef<std::path::Path>>(dir_path: P, recursive: bool) -> Result<Option<(FxHashMap<String, Vec<String>>, FxHashSet<String>)>, std::io::Error> {
+	let mut opponent_matrix: FxHashMap<String, Vec<String>> = FxHashMap::default();
+	let mut all_opponents = FxHashSet::default();
 
 	// 探索予定のディレクトリを保持するスタック
 	let mut dirs_to_visit = vec![dir_path.as_ref().to_path_buf()];

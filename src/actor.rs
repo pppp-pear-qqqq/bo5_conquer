@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use std::fs;
 
+use rustc_hash::FxHashSet;
 use serde::{Deserialize, Serialize};
 
 use crate::command::duel;
@@ -93,7 +93,7 @@ struct PatternSerializeTemp {
 impl ActorSerializeTemp {
 	pub fn into_player(self, dict: &Licences) -> Result<Actor, Error> {
 		let weapon = if self.unlimited {
-			let mut set = HashSet::new();
+			let mut set = FxHashSet::default();
 			for p in &self.patterns {
 				for s in p {
 					set.insert(s.name.as_str());
