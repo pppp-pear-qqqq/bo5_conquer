@@ -10,12 +10,14 @@ pub fn duel(p1_weapon: &Weapon, p1_pattern: &Pattern, p2_weapon: &Weapon, p2_pat
 	for i in 0..ROUND {
 		let p1 = p1_weapon.skill(p1_pattern[i] as usize);
 		let p2 = p2_weapon.skill(p2_pattern[i] as usize);
+		p1_voltage.insert(p1.ty);
+		p2_voltage.insert(p2.ty);
 		let p1_damage = match p1.ty {
-			SkillType::Sp | SkillType::Ex => (p1.atk as f32 * VOLTAGE[p1_voltage.len()]) as i32,
+			SkillType::Sp | SkillType::Ex => (p1.atk as f32 * VOLTAGE[p1_voltage.len() - 1]) as i32,
 			_ => p1.atk,
 		};
 		let p2_damage = match p2.ty {
-			SkillType::Sp | SkillType::Ex => (p2.atk as f32 * VOLTAGE[p2_voltage.len()]) as i32,
+			SkillType::Sp | SkillType::Ex => (p2.atk as f32 * VOLTAGE[p2_voltage.len() - 1]) as i32,
 			_ => p2.atk,
 		};
 		let (p1_round_score, p2_round_score) = match p1.ty.cmp(&p2.ty) {
@@ -28,8 +30,6 @@ pub fn duel(p1_weapon: &Weapon, p1_pattern: &Pattern, p2_weapon: &Weapon, p2_pat
 		if !quiet {
 			println!("round {}: {}\t| {}", i + 1, p1_round_score, p2_round_score);
 		}
-		p1_voltage.insert(p1.ty);
-		p2_voltage.insert(p2.ty);
 	}
 	(p1_score, p2_score)
 }

@@ -50,10 +50,12 @@ enum Mode {
 	},
 	// シミュレーション
 	Simulate {
-		#[arg(short, long)]
+		#[arg(short = '0', long)]
 		al_weapon: Option<String>,
-		#[arg(short, long)]
+		#[arg(short = '1', long)]
 		op_weapon: Option<String>,
+		al_pattern: Option<String>,
+		op_pattern: Option<String>,
 	},
 }
 
@@ -91,7 +93,12 @@ impl FromStr for Mode {
 				input_dir: None,
 				recursive: false,
 			},
-			"s" | "simulate" => Self::Simulate { al_weapon: None, op_weapon: None },
+			"s" | "simulate" => Self::Simulate {
+				al_weapon: None,
+				op_weapon: None,
+				al_pattern: None,
+				op_pattern: None,
+			},
 			_ => return Err(io::Error::new(io::ErrorKind::InvalidInput, s)),
 		})
 	}
@@ -139,9 +146,16 @@ impl Mode {
 				input_dir: Some(input_dir.unwrap_or_input("patterns dir: ")?),
 				recursive,
 			}),
-			Self::Simulate { al_weapon, op_weapon } => Ok(Self::Simulate {
+			Self::Simulate {
+				al_weapon,
+				op_weapon,
+				al_pattern,
+				op_pattern,
+			} => Ok(Self::Simulate {
 				al_weapon: Some(al_weapon.unwrap_or_input("select your weapon: ")?),
 				op_weapon: Some(op_weapon.unwrap_or_input("select opponent's weapon: ")?),
+				al_pattern: Some(al_pattern.unwrap_or_input("input your pattern: ")?),
+				op_pattern: Some(op_pattern.unwrap_or_input("input opponent's pattern: ")?),
 			}),
 		}
 	}
@@ -169,10 +183,25 @@ fn main() -> Result<(), Error> {
 		Mode::Consistents { weapon, input_dir, recursive } => {
 			command::consistents(out, dict.get_weapon(&weapon.unwrap())?, input_dir.unwrap(), recursive)?;
 		}
-		Mode::Simulate { al_weapon: _, op_weapon: _ } => {
-			todo!();
-			// command::simulate(out, dict.get_weapon(&al_weapon.unwrap())?, dict.get_weapon(&op_weapon.unwrap())?)?;
+		Mode::Simulate {
+			al_weapon,
+			op_weapon,
+			al_pattern,
+			op_pattern,
+		} => {
+			let al_pattern = parse_pattern(&al_pattern.unwrap_or_input("2,0,3,4,4")?).map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?;
+			let op_pattern = parse_pattern(&op_pattern.unwrap_or_input("2,0,4,4,3")?).map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?;
+			let (al_score, op_score) = command::duel(dict.get_weapon(&al_weapon.unwrap())?, &al_pattern, dict.get_weapon(&op_weapon.unwrap())?, &op_pattern, false);
+			println!("{al_score}\t:{op_score}");
 		}
 	}
 	Ok(())
+}
+
+fn parse_pattern(raw: &str) -> Result<Pattern, std::num::ParseIntError> {
+	let mut pattern = [0xffu8; ROUND];
+	for (i, s) in raw.split(',').enumerate() {
+		pattern[i] = s.trim().parse()?;
+	}
+	Ok(pattern)
 }
