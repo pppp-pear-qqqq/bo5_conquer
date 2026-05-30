@@ -49,7 +49,7 @@
 			if (localStorage.getItem(key.auto_search) !== 'true') return;
 			const stage = e.dataset.stage;
 			const name = form.querySelector(`.next_ch[data-npc="${stage}"] [data-name]`).dataset.name;
-			search_box.value = `${stage}|${name}`;
+			search_box.value = `\\b(${stage}|${name})\\b`;
 			search_box.dispatchEvent(new Event('input'));
 		})
 	}
