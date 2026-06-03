@@ -88,6 +88,9 @@ impl Licences {
 	pub fn get_weapon(&self, id: &str) -> Result<&Weapon, Error> {
 		self.0.iter().find(|w| w.id == id).ok_or(Error::WeaponUndefined(id.to_string()))
 	}
+	pub fn get_all_weapons(&self) -> &[Weapon] {
+		&self.0
+	}
 	pub fn get_skill(&self, name: &str) -> Result<&Skill, Error> {
 		self.0.iter().map(|w| &w.skill_list).flatten().find(|s| s.name == name).ok_or(Error::SkillUndefined(name.into()))
 	}

@@ -53,8 +53,9 @@ pub fn find(out: Output, weapon: &Weapon, opponent: Actor) -> Result<(), Error> 
 	Ok(())
 }
 
-pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String) -> Result<(), Error> {
+pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: &str, recursive: bool, quiet: bool) -> Result<i32, Error> {
 	out.make_dir()?;
+	let mut perfect = 0;
 	// 全件探索
 	for entry in std::fs::read_dir(&input_dir)? {
 		let path = entry?.path();
@@ -66,7 +67,12 @@ pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String
 			} else {
 				let mut out = match out.gen_write(&format!("{}.csv", opponent.eno)) {
 					Ok(out) => {
-						println!("{}: ok", opponent.eno);
+						if !quiet {
+							println!("{}: ok\t({:.2})", opponent.eno, draw);
+						}
+						if draw == 1.0 {
+							perfect += 1;
+						}
 						out
 					}
 					Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => continue,
@@ -77,9 +83,15 @@ pub fn find_all(out: Output, dict: &Licences, weapon: &Weapon, input_dir: String
 					writeln!(out, "{:03.0},{:03.0},{line}", win * 100.0, draw * 100.0)?;
 				}
 			}
+		} else if recursive && path.is_dir() {
+			let out = out.add_dir(&path.file_name().and_then(|n| n.to_str()).unwrap());
+			if !quiet {
+				println!("dir: {}", path.to_string_lossy());
+			}
+			perfect += find_all(out, dict, weapon, &path.to_string_lossy(), recursive, quiet)?;
 		}
 	}
-	Ok(())
+	Ok(perfect)
 }
 
 pub fn consistents(out: Output, weapon: &Weapon, input_dir: String, recursive: bool) -> Result<(), Error> {

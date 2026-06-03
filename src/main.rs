@@ -38,6 +38,8 @@ enum Mode {
 		weapon: Option<String>,
 		#[arg(short, long, default_value = "data/patterns")]
 		input_dir: String,
+		#[arg(short, long, default_value = "false")]
+		recursive: bool,
 	},
 	// 一貫するパターン探索
 	Consistents {
@@ -56,6 +58,13 @@ enum Mode {
 		op_weapon: Option<String>,
 		al_pattern: Option<String>,
 		op_pattern: Option<String>,
+	},
+	// 全武器による全探索
+	AllWeapon {
+		#[arg(short, long, default_value = "data/patterns")]
+		input_dir: String,
+		#[arg(short, long, default_value = "false")]
+		recursive: bool,
 	},
 }
 
@@ -87,6 +96,7 @@ impl FromStr for Mode {
 			"a" | "find-all" => Self::FindAll {
 				weapon: None,
 				input_dir: "data/patterns".to_string(),
+				recursive: false,
 			},
 			"c" | "consistents" => Self::Consistents {
 				weapon: None,
@@ -98,6 +108,10 @@ impl FromStr for Mode {
 				op_weapon: None,
 				al_pattern: None,
 				op_pattern: None,
+			},
+			"aw" | "all-weapon" => Self::AllWeapon {
+				input_dir: "data/patterns".to_string(),
+				recursive: false,
 			},
 			_ => return Err(io::Error::new(io::ErrorKind::InvalidInput, s)),
 		})
@@ -128,6 +142,15 @@ impl Output {
 			Self::Stdout => Ok(Box::new(io::stdout())),
 		}
 	}
+	fn add_dir(&self, dir: &str) -> Self {
+		match self {
+			Self::File { dir: parent, overwrite } => Self::File {
+				dir: format!("{parent}/{dir}"),
+				overwrite: *overwrite,
+			},
+			Self::Stdout => Self::Stdout,
+		}
+	}
 }
 
 impl Mode {
@@ -137,9 +160,10 @@ impl Mode {
 				weapon: Some(weapon.unwrap_or_input("select your weapon: ")?),
 				opponent: Some(opponent.unwrap_or_input("select opponent: ")?),
 			}),
-			Self::FindAll { weapon, input_dir } => Ok(Self::FindAll {
+			Self::FindAll { weapon, input_dir, recursive } => Ok(Self::FindAll {
 				weapon: Some(weapon.unwrap_or_input("select your weapon: ")?),
 				input_dir,
+				recursive,
 			}),
 			Self::Consistents { weapon, input_dir, recursive } => Ok(Self::Consistents {
 				weapon: Some(weapon.unwrap_or_input("input your weapon id: ")?),
@@ -157,6 +181,7 @@ impl Mode {
 				al_pattern: Some(al_pattern.unwrap_or_input("input your pattern: ")?),
 				op_pattern: Some(op_pattern.unwrap_or_input("input opponent's pattern: ")?),
 			}),
+			Self::AllWeapon { input_dir, recursive } => Ok(Self::AllWeapon { input_dir, recursive }),
 		}
 	}
 }
@@ -177,8 +202,8 @@ fn main() -> Result<(), Error> {
 		Mode::Find { weapon, opponent } => {
 			command::find(out, dict.get_weapon(&weapon.unwrap())?, actor::Actor::load(format!("data/patterns/{}.json", opponent.unwrap()), &dict)?)?;
 		}
-		Mode::FindAll { weapon, input_dir } => {
-			command::find_all(out, &dict, dict.get_weapon(&weapon.unwrap())?, input_dir)?;
+		Mode::FindAll { weapon, input_dir, recursive } => {
+			command::find_all(out, &dict, dict.get_weapon(&weapon.unwrap())?, &input_dir, recursive, false)?;
 		}
 		Mode::Consistents { weapon, input_dir, recursive } => {
 			command::consistents(out, dict.get_weapon(&weapon.unwrap())?, input_dir.unwrap(), recursive)?;
@@ -193,6 +218,13 @@ fn main() -> Result<(), Error> {
 			let op_pattern = parse_pattern(&op_pattern.unwrap_or_input("2,0,4,4,3")?).map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?;
 			let (al_score, op_score) = command::duel(dict.get_weapon(&al_weapon.unwrap())?, &al_pattern, dict.get_weapon(&op_weapon.unwrap())?, &op_pattern, false);
 			println!("{al_score}\t:{op_score}");
+		}
+		Mode::AllWeapon { input_dir, recursive } => {
+			for weapon in dict.get_all_weapons() {
+				let out = out.add_dir(&weapon.id);
+				let perfect = command::find_all(out, &dict, weapon, &input_dir, recursive, true)?;
+				println!("{}: {perfect}", weapon.id);
+			}
 		}
 	}
 	Ok(())

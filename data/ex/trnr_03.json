@@ -1,7 +1,8 @@
 {
 	"eno": "trnr_03",
 	"name": "トーナー",
-	"weapon": "broadsword-sp",
+	"weapon": "broadsword",
+	"unlimited": true,
 	"patterns": [
 		[
 			{ "type": "sp", "name": "ディバイド" },
