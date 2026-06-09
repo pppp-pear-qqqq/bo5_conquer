@@ -551,7 +551,7 @@
 	},
 	{
 		"id": 12,
-		"key": "staff",
+		"key": "rod",
 		"category": "defense",
 		"name": "棒",
 		"desc": "身の丈よりも長くよくしなる棒。長いリーチと全体を使った戦い方は防戦を得手とする。",
@@ -1201,7 +1201,7 @@
 	},
 	{
 		"id": 25,
-		"key": "batteringram",
+		"key": "batting-ram",
 		"category": "tricky",
 		"name": "バッティングラム",
 		"desc": "ドアを叩いてこじ開けるための道具。重量と運動エネルギーによってあらゆる障害を強引に突破する破壊力を持つ。",
@@ -1451,7 +1451,7 @@
 	},
 	{
 		"id": 30,
-		"key": "ironfan",
+		"key": "iron-fan",
 		"category": "heavy",
 		"name": "鉄扇",
 		"desc": "金属製の頑丈な扇。舞いにも似た優雅な戦法で敵も観客も魅了間違いなし。",
@@ -1501,7 +1501,7 @@
 	},
 	{
 		"id": 31,
-		"key": "bottle",
+		"key": "liquor-bottle",
 		"category": "unique",
 		"name": "酒瓶",
 		"desc": "酒場で乱闘する時のお供。一般的なガラス容器だが何故か割れず、意外とある質量でぶん殴る鈍器。",
@@ -3451,7 +3451,7 @@
 	},
 	{
 		"id": 75,
-		"key": "knuckleduster",
+		"key": "knuckle-duster",
 		"category": "specialist",
 		"name": "ナックルダスター",
 		"desc": "握り込んで拳による打撃を強化する簡易な鈍器。リーチこそ短いものの、小さな動作で的確な１撃を叩き込む。",
@@ -4551,7 +4551,7 @@
 	},
 	{
 		"id": 99,
-		"key": "khopesh",
+		"key": "kepes",
 		"category": "tricky",
 		"name": "ケペシュ",
 		"desc": "防御を引き剥がす鈎を持つ、外側に刃を持つ斧にも似た曲剣。",
